@@ -52,92 +52,117 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
     # still back in the main loop
     new = copy.deepcopy(new_kodi_playqueue)
     index = list(range(0, len(old)))
-    log.debug('Comparing new Kodi playqueue %s with our play queue %s',
-              new, old)
-    for i, new_item in enumerate(new):
-        if (new_item['file'].startswith('plugin://') and
-                not new_item['file'].startswith(PLUGIN)):
+    log.debug('compare_playqueues: Entered. Playqueue ID: %s, Old PKC len: %s, New Kodi len: %s', playqueue.id if playqueue else "N/A", len(old), len(new_kodi_playqueue))
+    # log.debug('Comparing new Kodi playqueue %s with our play queue %s', new, old) # Original, more verbose log
+
+    for i, new_item_data in enumerate(new): # Renamed new_item to new_item_data to avoid confusion with PlaylistItem instances
+        if (new_item_data['file'].startswith('plugin://') and
+                not new_item_data['file'].startswith(PLUGIN)):
             # Ignore new media added by other addons
+            log.debug("compare_playqueues: Playqueue %s, item %s is from other addon, skipping.", playqueue.id if playqueue else "N/A", new_item_data.get('file', 'N/A'))
             continue
-        for j, old_item in enumerate(old):
+        for j, old_item_instance in enumerate(old): # Renamed old_item to old_item_instance
 
             if app.APP.stop_pkc:
                 # Chances are that we got an empty Kodi playlist due to
                 # Kodi exit
                 return
             try:
-                if (old_item.file.startswith('plugin://') and not old_item.file.startswith(PLUGIN)):
+                if (old_item_instance.file.startswith('plugin://') and not old_item_instance.file.startswith(PLUGIN)): # 여기가 수정되었습니다.
                     # Ignore media by other addons
                     continue
             except AttributeError:
                 # were not passed a filename; ignore
                 pass
-            if 'id' in new_item:
-                identical = (old_item.kodi_id == new_item['id'] and
-                             old_item.kodi_type == new_item['type'])
+            if 'id' in new_item_data: # Using new_item_data
+                identical = (old_item_instance.kodi_id == new_item_data['id'] and # Using old_item_instance and new_item_data
+                             old_item_instance.kodi_type == new_item_data['type']) # Using old_item_instance and new_item_data
             else:
                 try:
-                    plex_id = int(utils.REGEX_PLEX_ID.findall(new_item['file'])[0])
+                    plex_id = int(utils.REGEX_PLEX_ID.findall(new_item_data['file'])[0]) # Using new_item_data
                 except IndexError:
-                    log.debug('Comparing paths directly as a fallback')
-                    identical = old_item.file == new_item['file']
+                    log.debug('compare_playqueues: Playqueue %s, comparing paths directly as a fallback for item %s', playqueue.id if playqueue else "N/A", new_item_data.get('file', 'N/A'))
+                    identical = old_item_instance.file == new_item_data['file'] # Using old_item_instance and new_item_data
                 else:
-                    identical = plex_id == old_item.plex_id
+                    identical = plex_id == old_item_instance.plex_id # Using old_item_instance
             if j == 0 and identical:
+                log.debug("compare_playqueues: Playqueue %s, item at pos 0 (Kodi ID: %s) is identical, removing from consideration.", playqueue.id if playqueue else "N/A", old_item_instance.kodi_id if old_item_instance else "N/A")
                 del old[0], index[0]
                 break
             elif identical:
-                log.debug('Playqueue item %s moved to position %s',
-                          index[j], i)
+                log.debug('compare_playqueues: Playqueue %s, item %s (Kodi ID: %s) moved from old pos %s to new pos %s',
+                          playqueue.id if playqueue else "N/A", old_item_instance.plex_id if old_item_instance else "N/A", old_item_instance.kodi_id if old_item_instance else "N/A", index[j], i)
                 try:
                     PL.move_playlist_item(playqueue, index[j], i)
                 except exceptions.PlaylistError:
-                    log.error('Could not modify playqueue positions')
+                    log.error('compare_playqueues: Playqueue %s, could not modify playqueue positions.', playqueue.id if playqueue else "N/A")
                     log.error('This is likely caused by mixing audio and '
                               'video tracks in the Kodi playqueue')
-                del old[j], index[i]
+                del old[j], index[j] # index[i] should be index[j] if we are removing the j-th element from old and index lists
                 break
-        else:
-            log.debug('Detected new Kodi element at position %s: %s ',
-                      i, new_item)
+        else: # This else belongs to the inner for loop (for j, old_item_instance...)
+            log.debug('compare_playqueues: Playqueue %s, detected new Kodi element at new pos %s: %s ',
+                      playqueue.id if playqueue else "N/A", i, new_item_data)
             try:
+                newly_added_item = None
                 if playqueue.id is None:
-                    PL.init_plex_playqueue(playqueue, kodi_item=new_item)
+                    # This will internally call playlist.items.append(item)
+                    newly_added_item = PL.init_plex_playqueue(playqueue, kodi_item=new_item_data)
+                    log.debug("compare_playqueues: Playqueue %s, initialized with new item, plex_id %s", playqueue.id if playqueue else "N/A", newly_added_item.plex_id if newly_added_item else "N/A")
                 else:
-                    PL.add_item_to_plex_playqueue(playqueue,
+                    # This will internally call playlist.items.append(item) and then move it
+                    newly_added_item = PL.add_item_to_plex_playqueue(playqueue,
                                                   i,
-                                                  kodi_item=new_item)
-            except exceptions.PlaylistError:
+                                                  kodi_item=new_item_data)
+                    log.debug("compare_playqueues: Playqueue %s, adding item with inferred plex_id %s at pos %s", playqueue.id if playqueue else "N/A", newly_added_item.plex_id if newly_added_item else "N/A", i)
+            except exceptions.PlaylistError as e:
+                log.error('compare_playqueues: Playqueue %s, PlaylistError adding/initing item: %s. Item data: %s. Error: %s', playqueue.id if playqueue else "N/A", new_item_data.get('file', 'N/A'), new_item_data, e)
                 # Could not add the element
                 pass
-            except KeyError:
+            except KeyError as e:
                 # Catches KeyError from PL.verify_kodi_item()
                 # Hack: Kodi already started playback of a new item and we
                 # started playback already using kodimonitors
                 # PlayBackStart(), but the Kodi playlist STILL only shows
                 # the old element. Hence ignore playlist difference here
-                log.debug('Detected an outdated Kodi playlist - ignoring')
+                log.debug('compare_playqueues: Playqueue %s, KeyError (likely outdated Kodi playlist), ignoring. Item data: %s. Error: %s', playqueue.id if playqueue else "N/A", new_item_data, e)
                 return
-            except IndexError:
+            except IndexError as e:
                 # This is really a hack - happens when using Addon Paths
                 # and repeatedly  starting the same element. Kodi will then
                 # not pass kodi id nor file path AND will also not
                 # start-up playback. Hence kodimonitor kicks off playback.
                 # Also see kodimonitor.py - _playlist_onadd()
+                log.debug('compare_playqueues: Playqueue %s, IndexError (likely Addon Paths issue), ignoring. Item data: %s. Error: %s', playqueue.id if playqueue else "N/A", new_item_data, e)
                 pass
             else:
-                for j in range(i, len(index)):
-                    index[j] += 1
-    for i in reversed(index):
+                # This for loop seems to adjust indices for items that were shifted due to an insert.
+                # However, PL.add_item_to_plex_playqueue already handles moving the item to the correct position 'i'.
+                # If PL.init_plex_playqueue was called, 'old' and 'index' were empty or reset, so this loop might not be relevant then.
+                # Consider if this index adjustment is still needed as PL.add_item_to_plex_playqueue now handles position.
+                # If an item is added at 'i', items originally at 'i' and later in 'old'/'index' are effectively shifted.
+                # This loop correctly adjusts their original indices in the 'index' list.
+                log.debug("compare_playqueues: Playqueue %s, adjusting indices from pos %s due to new item insertion.", playqueue.id if playqueue else "N/A", i)
+                for k_loop_var in range(i, len(index)): # Renamed j to k_loop_var to avoid clash
+                    index[k_loop_var] += 1
+
+    # After iterating through new items, any remaining items in 'old' (tracked by 'index') are deletions.
+    for i_loop_var in reversed(index): # Renamed i to i_loop_var
         if app.APP.stop_pkc:
             # Chances are that we got an empty Kodi playlist due to
             # Kodi exit
+            log.debug("compare_playqueues: Playqueue %s, PKC stopping, returning from deletion loop.", playqueue.id if playqueue else "N/A")
             return
-        log.debug('Detected deletion of playqueue element at pos %s', i)
+
+        item_to_delete_plex_id = "N/A"
+        if playqueue and i_loop_var < len(playqueue.items) and hasattr(playqueue.items[i_loop_var], 'plex_id'):
+             item_to_delete_plex_id = playqueue.items[i_loop_var].plex_id
+
+        log.debug('compare_playqueues: Playqueue %s, detected deletion of element at old PKC pos %s (plex_id: %s)', playqueue.id if playqueue else "N/A", i_loop_var, item_to_delete_plex_id)
         try:
-            PL.delete_playlist_item_from_PMS(playqueue, i)
+            PL.delete_playlist_item_from_PMS(playqueue, i_loop_var)
         except exceptions.PlaylistError:
-            log.error('Could not delete PMS element from position %s', i)
+            log.error('compare_playqueues: Playqueue %s, could not delete PMS element from position %s.', playqueue.id if playqueue else "N/A", i_loop_var)
             log.error('This is likely caused by mixing audio and '
                       'video tracks in the Kodi playqueue')
-    log.debug('Done comparing playqueues')
+    log.debug('compare_playqueues: Finished. Playqueue ID: %s, Final PKC item count: %s', playqueue.id if playqueue else "N/A", len(playqueue.items) if playqueue else "N/A")

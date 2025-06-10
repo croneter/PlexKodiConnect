@@ -233,14 +233,30 @@ class PlaystateMgr(backgroundthread.KillableThread):
                 for playqueue in app.PLAYQUEUES:
                     kodi_pl = js.playlist_get_items(playqueue.playlistid)
                     if playqueue.old_kodi_pl != kodi_pl:
+                        is_music_playqueue = hasattr(playqueue, 'type') and playqueue.type == v.KODI_TYPE_AUDIO_PLAYLIST # Ensure 'v' is imported
+
                         if playqueue.id is None and (not app.SYNC.direct_paths or
                                                      app.PLAYSTATE.context_menu_play):
                             # Only initialize if directly fired up using direct
                             # paths. Otherwise let default.py do its magic
                             log.debug('Not yet initiating playback')
                         else:
+                            if is_music_playqueue:
+                                log.debug("PlaystateMgr: Music playqueue change detected. Calling compare_playqueues for playqueue.id: %s. Old len: %s, New len: %s",
+                                          playqueue.id, len(playqueue.old_kodi_pl) if playqueue.old_kodi_pl else "N/A", len(kodi_pl))
+
                             # compare old and new playqueue
                             compare_playqueues(playqueue, kodi_pl)
+
+                            if is_music_playqueue:
+                                current_plex_ids = "N/A"
+                                try:
+                                    current_plex_ids = [item.plex_id for item in playqueue.items if hasattr(item, 'plex_id')]
+                                except Exception as e:
+                                    log.debug("PlaystateMgr: Error getting plex_ids for logging: %s", e)
+                                log.debug("PlaystateMgr: compare_playqueues finished for music playqueue.id: %s. New playqueue.items len: %s, plex_ids: %s",
+                                          playqueue.id, len(playqueue.items), current_plex_ids)
+
                         playqueue.old_kodi_pl = list(kodi_pl)
             # Make sure we are registered as a player
             now = timing.unix_timestamp()
@@ -259,7 +275,42 @@ class PlaystateMgr(backgroundthread.KillableThread):
                 self.sleep(1)
                 continue
             elif not app.PLAYSTATE.item:
-                # Not a Plex item currently playing
+                # Not a Plex item currently playing - try to recover
+                log.debug("PlaystateMgr: No app.PLAYSTATE.item set. Active players (from js.get_players()): %s. Attempting recovery.", players)
+                if players:
+                    active_player_ids = js.get_player_ids()
+                    if active_player_ids:
+                        playerid_to_recover = active_player_ids[0]
+                        log.debug("PlaystateMgr: Attempting recovery for playerid: %s", playerid_to_recover)
+                        try:
+                            item_props = js.get_item(playerid_to_recover, ["title", "file", "type", "id"])
+                            current_kodi_item_data_for_recovery = {
+                                'player': {'playerid': playerid_to_recover},
+                                'item': item_props if item_props else {}
+                            }
+                            playqueue_to_recover = app.PLAYQUEUES[playerid_to_recover]
+
+                            if app.APP.monitor: # Ensure monitor object exists
+                                recovered_item = app.APP.monitor.try_identify_and_set_plex_item(
+                                    playerid_to_recover,
+                                    playqueue_to_recover,
+                                    current_kodi_item_data_for_recovery
+                                )
+                                if recovered_item and app.PLAYSTATE.item:
+                                    log.info("PlaystateMgr: Successfully recovered and set app.PLAYSTATE.item for playerid %s: %s", playerid_to_recover, app.PLAYSTATE.item.plex_id if hasattr(app.PLAYSTATE.item, 'plex_id') else "Unknown plex_id")
+                                    # If recovery was successful, we might not want to sleep and continue immediately
+                                    # but the original logic has a continue after sleep, so we'll maintain that pattern.
+                                else:
+                                    log.warning("PlaystateMgr: Failed to recover app.PLAYSTATE.item for playerid %s.", playerid_to_recover)
+                            else:
+                                log.error("PlaystateMgr: app.APP.monitor is not available. Cannot attempt recovery.")
+                        except Exception as e:
+                            log.error("PlaystateMgr: Error during recovery attempt for playerid %s: %s", playerid_to_recover, e, exc_info=True)
+                    else:
+                        log.debug("PlaystateMgr: Recovery requested, but no active player IDs found by js.get_player_ids().")
+                else:
+                    log.debug("PlaystateMgr: No app.PLAYSTATE.item and no active players detected by js.get_players() at recovery point.")
+
                 self.sleep(1)
                 continue
             else:

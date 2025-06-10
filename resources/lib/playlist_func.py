@@ -653,7 +653,8 @@ def init_plex_playqueue(playlist, plex_id=None, kodi_item=None):
 
     Returns the first PKC playlist item or raises PlaylistError
     """
-    LOG.debug('Initializing the playqueue on the Plex side: %s', playlist)
+    LOG.debug('init_plex_playqueue: Entered. Playlist: %s, plex_id: %s, kodi_item: %s', playlist, plex_id, kodi_item)
+    # LOG.debug('Initializing the playqueue on the Plex side: %s', playlist) # Original log, seems redundant with the one above
     kodi_item = kodi_item or {}
     verify_kodi_item(plex_id, kodi_item)
     playlist.clear(kodi=False)
@@ -684,7 +685,9 @@ def init_plex_playqueue(playlist, plex_id=None, kodi_item=None):
                   plex_id, kodi_item)
         raise PlaylistError
     playlist.items.append(item)
-    LOG.debug('Initialized the playqueue on the Plex side: %s', playlist)
+    LOG.debug("init_plex_playqueue: Adding item with plex_id %s to playqueue %s. Item details: %s", item.plex_id if item else "N/A", playlist.id if playlist else "N/A", item)
+    # LOG.debug('Initialized the playqueue on the Plex side: %s', playlist) # Original log
+    LOG.debug('init_plex_playqueue: About to return. Playlist: %s, Item: %s', playlist, item)
     return item
 
 

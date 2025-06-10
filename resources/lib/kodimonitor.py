@@ -49,6 +49,250 @@ class KodiMonitor(xbmc.Monitor):
         """
         LOG.debug("Kodi library scan %s finished.", library)
 
+    def try_identify_and_set_plex_item(self, playerid, playqueue, current_kodi_item_data):
+        """
+        Identifies the playing item and sets app.PLAYSTATE.item.
+        Encapsulates logic from the original PlayBackStart.
+        Returns the item if successful, None otherwise.
+        """
+        # kodi_id, kodi_type, path are initially from current_kodi_item_data (which is `data` in PlayBackStart context)
+        # or from self._json_item() if needed later.
+        kodi_id = current_kodi_item_data['item'].get('id')
+        kodi_type = current_kodi_item_data['item'].get('type')
+        path = current_kodi_item_data['item'].get('file')
+
+        info = js.get_player_props(playerid) # Used for pos and later for status update
+        if playqueue.kodi_playlist_playback:
+            pos = 0
+            LOG.debug('try_identify_and_set_plex_item: Detected playback from a Kodi playlist, pos = 0')
+        else:
+            pos = info['position'] if info['position'] != -1 else 0
+            LOG.debug('try_identify_and_set_plex_item: Detected position %s for %s', pos, playqueue)
+
+        status = app.PLAYSTATE.player_states[playerid]
+
+        # Detailed logging before try: item = playqueue.items[pos]
+        pq_item_details = "N/A"
+        if pos < len(playqueue.items) and playqueue.items[pos] is not None:
+            # Accessing playqueue.items[pos] here before 'initialize' logic might be premature
+            # if the goal is to only access it if not initializing.
+            # However, this log is for pre-check, so it's informative.
+            current_pq_item = playqueue.items[pos]
+            pq_item_plex_id = getattr(current_pq_item, 'plex_id', 'Unknown plex_id')
+            pq_item_kodi_type = getattr(current_pq_item, 'kodi_type', 'Unknown kodi_type')
+            pq_item_details = "plex_id: %s, kodi_type: %s" % (pq_item_plex_id, pq_item_kodi_type)
+        elif pos >= len(playqueue.items):
+            pq_item_details = "pos out of bounds"
+        else:
+            pq_item_details = "item is None"
+        LOG.debug("try_identify_and_set_plex_item: Pre-init check. PlayerID: %s, Pos: %s, Playqueue len: %s, Item@pos details: %s", playerid, pos, len(playqueue.items), pq_item_details)
+
+        initialize = False # Default to False
+        item = None # Ensure item is defined
+
+        try:
+            item = playqueue.items[pos] # Attempt to get item from playqueue
+            LOG.debug('try_identify_and_set_plex_item: PKC playqueue item is: %s', item)
+        except IndexError:
+            LOG.debug('try_identify_and_set_plex_item: Position %s not in PKC playqueue yet', pos)
+            initialize = True
+        else: # Item successfully retrieved from playqueue.items[pos]
+            # This 'else' block contains the logic to determine if initialization is still needed
+            # even if an item was found at playqueue.items[pos].
+
+            # Ensure kodi_id, kodi_type, path are up-to-date if not available from initial current_kodi_item_data
+            # This logic was inside the 'else' in the original PlayBackStart
+            if not kodi_id: # kodi_id might be None if current_kodi_item_data['item'] was empty or lacked 'id'
+                # This implies self._json_item might be called even if an item is found in playqueue,
+                # if the initial kodi_id from current_kodi_item_data was missing.
+                LOG.debug("try_identify_and_set_plex_item: kodi_id is missing, calling _json_item.")
+                kodi_id, kodi_type, path = self._json_item(playerid)
+
+
+            if kodi_id and item.kodi_id: # Both initial kodi_id (potentially from _json_item) and item from playqueue have kodi_id
+                if item.kodi_id != kodi_id or item.kodi_type != kodi_type:
+                    LOG.debug('try_identify_and_set_plex_item: Detected different Kodi id (%s vs %s) or type (%s vs %s).', item.kodi_id, kodi_id, item.kodi_type, kodi_type)
+                    initialize = True
+                else:
+                    initialize = False # Matching kodi_id and kodi_type
+            else: # Either initial kodi_id is missing, or playqueue item's kodi_id is missing
+                  # This path suggests item might be a clip or something without a Kodi DB entry.
+                LOG.debug("try_identify_and_set_plex_item: Initial kodi_id (%s) or playqueue item's kodi_id (%s) is missing. Comparing paths.", kodi_id, item.kodi_id)
+                if not path: # Path might also be missing if kodi_id was missing and _json_item didn't yield a path
+                    # This call to _json_item seems redundant if kodi_id was already fetched above.
+                    # However, path might be specifically what's needed here.
+                    LOG.debug("try_identify_and_set_plex_item: path is missing, calling _json_item again.")
+                    _, _, path = self._json_item(playerid) # kodi_id, kodi_type from this call are not used here.
+
+                if path == '': # Path is empty string
+                    LOG.debug('try_identify_and_set_plex_item: Detected empty path: aborting playback report')
+                    app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template) # Reset player state
+                    app.PLAYSTATE.item = None # Ensure item is not set
+                    return None
+
+                if item.file != path: # Compare playqueue item's file with current path
+                    LOG.debug('try_identify_and_set_plex_item: Detected different path for item. Playqueue item file: %s, Current path: %s', item.file, path)
+                    try:
+                        # This REGEX implies path should be a URL that might contain a plex_id
+                        tmp_plex_id = int(utils.REGEX_PLEX_ID.findall(path)[0])
+                    except (IndexError, TypeError):
+                        LOG.debug('try_identify_and_set_plex_item: No Plex id in path, need to init playqueue')
+                        initialize = True
+                    else:
+                        if tmp_plex_id == item.plex_id:
+                            LOG.debug('try_identify_and_set_plex_item: Detected different path for the same plex_id. Item may have updated path.')
+                            initialize = False # Paths differ but plex_id matches, treat as same item, no full re-init
+                            item.file = path # Update file path for the existing item
+                        else:
+                            LOG.debug('try_identify_and_set_plex_item: Different Plex id in path, need to init playqueue')
+                            initialize = True
+                else: # Paths match
+                    initialize = False
+
+        LOG.debug("try_identify_and_set_plex_item: Initialize flag set to: %s", initialize)
+
+        if initialize:
+            LOG.debug('try_identify_and_set_plex_item: Need to initialize Plex and PKC playqueue')
+            # If kodi_id, kodi_type, path were not available from current_kodi_item_data or set above.
+            if not kodi_id or not kodi_type or not path:
+                LOG.debug("try_identify_and_set_plex_item: kodi_id, kodi_type, or path still missing, calling _json_item.")
+                kodi_id, kodi_type, path = self._json_item(playerid)
+
+            # _get_ids uses kodi_id, kodi_type, path to find plex_id, plex_type from DB or path
+            plex_id, plex_type = self._get_ids(kodi_id, kodi_type, path)
+
+            if not plex_id:
+                LOG.debug('try_identify_and_set_plex_item: Initial plex_id fetch failed. Attempting fallback via playqueue.')
+                try:
+                    current_item_in_playqueue = playqueue.items[pos] # pos might be out of bounds if playqueue is empty
+                    if current_item_in_playqueue and hasattr(current_item_in_playqueue, 'plex_id') and current_item_in_playqueue.plex_id:
+                        plex_id = current_item_in_playqueue.plex_id
+                        plex_type = current_item_in_playqueue.plex_type
+                        LOG.info('try_identify_and_set_plex_item: Successfully obtained plex_id (%s) and plex_type (%s) using playqueue fallback.', plex_id, plex_type)
+                    else:
+                        LOG.debug('try_identify_and_set_plex_item: Fallback failed: item at pos %s in playqueue has no plex_id or is None.', pos)
+                except IndexError:
+                    LOG.debug('try_identify_and_set_plex_item: Fallback failed: playqueue has no item at pos %s. Playqueue length: %s', pos, len(playqueue.items))
+                except AttributeError:
+                    LOG.debug('try_identify_and_set_plex_item: Fallback failed: item at pos %s in playqueue does not have plex_id or plex_type attribute.', pos)
+                except Exception as e:
+                    LOG.error('try_identify_and_set_plex_item: Fallback failed due to an unexpected error: %s', e)
+
+            if not plex_id:
+                pq_item_plex_id_info_fallback = "N/A"
+                if pos < len(playqueue.items): # Check pos bounds again for logging
+                    item_at_pos_fallback = playqueue.items[pos]
+                    if hasattr(item_at_pos_fallback, "plex_id"):
+                        pq_item_plex_id_info_fallback = "plex_id: %s" % item_at_pos_fallback.plex_id
+                    elif hasattr(item_at_pos_fallback, "title"):
+                        pq_item_plex_id_info_fallback = "title: %s (no plex_id)" % item_at_pos_fallback.title
+                    else:
+                        pq_item_plex_id_info_fallback = "Unknown item (no plex_id)"
+
+                LOG.error('try_identify_and_set_plex_item: No Plex id obtained after all attempts - aborting playback report. PlayerID: %s, KodiID: %s, KodiType: %s, Path: %s, Playqueue items count: %s, Playqueue item at pos %s: %s. app.PLAYSTATE.item will not be set.',
+                          playerid, kodi_id, kodi_type, path, len(playqueue.items), pos, pq_item_plex_id_info_fallback)
+                app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template)
+                app.PLAYSTATE.item = None
+                return None
+
+            try:
+                # PL.init_plex_playqueue is expected to return the item.
+                item = PL.init_plex_playqueue(playqueue, plex_id=plex_id) # kodi_item is not passed here, relies on plex_id
+                LOG.debug("try_identify_and_set_plex_item: Post PL.init_plex_playqueue. Item plex_id: %s, plex_type: %s", item.plex_id if item else "N/A", item.plex_type if item else "N/A")
+                if item: # If PL.init_plex_playqueue succeeds and returns an item
+                     item.file = path # Set the file path for the newly initialized item
+                else: # PL.init_plex_playqueue failed to return an item
+                    LOG.error("try_identify_and_set_plex_item: PL.init_plex_playqueue did not return an item for plex_id %s", plex_id)
+                    app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template)
+                    app.PLAYSTATE.item = None
+                    return None
+            except exceptions.PlaylistError:
+                LOG.info('try_identify_and_set_plex_item: Could not initialize the Plex playlist for plex_id %s', plex_id)
+                app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template)
+                app.PLAYSTATE.item = None
+                return None
+
+            # Set the Plex container key
+            container_key = None
+            if info['playlistid'] != -1:
+                container_key = app.PLAYQUEUES[playerid].id
+            if container_key is not None:
+                container_key = '/playQueues/%s' % container_key
+            elif plex_id is not None: # plex_id should be valid here
+                container_key = '/library/metadata/%s' % plex_id
+            # status['container_key'] will be set later
+
+        else: # No need to initialize playqueues, item was already good from playqueue.items[pos]
+            LOG.debug('try_identify_and_set_plex_item: No need to initialize playqueues')
+            # Use details from the existing item
+            kodi_id = item.kodi_id
+            kodi_type = item.kodi_type
+            plex_id = item.plex_id # This is critical, ensure item has plex_id
+            plex_type = item.plex_type
+            path = item.file # Use item's file path
+
+            if not plex_id:
+                LOG.error("try_identify_and_set_plex_item: Item from playqueue lacks plex_id. Item: %s", item)
+                app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template)
+                app.PLAYSTATE.item = None
+                return None
+
+            container_key = None
+            if playqueue.id:
+                container_key = '/playQueues/%s' % playqueue.id
+            else:
+                container_key = '/library/metadata/%s' % plex_id
+
+        if not item:
+            LOG.error("try_identify_and_set_plex_item: Item is None before final assignment. This should not happen.")
+            app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template)
+            app.PLAYSTATE.item = None
+            return None
+
+        # Mechanik for Plex skip intro/credits/commercials feature
+        if utils.settings('enableSkipIntro') == 'true' \
+                or utils.settings('enableSkipCredits') == 'true' \
+                or utils.settings('enableSkipCommercials') == 'true':
+            if hasattr(item, 'api') and item.api: # Ensure item.api is valid
+                status['markers'] = item.api.markers()
+                status['markers_hidden'] = {}
+                if utils.settings('enableSkipCredits') == 'true':
+                    status['first_credits_marker'] = item.api.first_credits_marker()
+                    status['final_credits_marker'] = item.api.final_credits_marker()
+            else:
+                LOG.warning("try_identify_and_set_plex_item: Item has no valid 'api' attribute for markers. Item: %s", item)
+
+
+        if item.playmethod is None and path and not path.startswith('plugin://'):
+            item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
+
+        item.playerid = playerid
+
+        LOG.info("try_identify_and_set_plex_item: Assigning to app.PLAYSTATE.item: plex_id=%s, plex_type=%s, file=%s", item.plex_id, item.plex_type, item.file)
+        app.PLAYSTATE.item = item
+        app.PLAYSTATE.active_players.add(playerid)
+
+        # Update status dictionary
+        status.update(info) # info from js.get_player_props(playerid) at the beginning
+        LOG.debug('try_identify_and_set_plex_item: Set the Plex container_key to: %s', container_key)
+        status['container_key'] = container_key
+        status['file'] = path
+        status['kodi_id'] = kodi_id
+        status['kodi_type'] = kodi_type
+        status['plex_id'] = plex_id # Should be item.plex_id
+        status['plex_type'] = plex_type # Should be item.plex_type
+        status['playmethod'] = item.playmethod
+        status['playcount'] = item.playcount
+        status['external_player'] = app.APP.player.isExternalPlayer() == 1
+        LOG.debug('try_identify_and_set_plex_item: Set the player state: %s', status)
+
+        if playerid == v.KODI_VIDEO_PLAYER_ID:
+            task = InitVideoStreams(item) # InitVideoStreams needs item
+            backgroundthread.BGThreader.addTask(task)
+
+        return item
+
+
     def onSettingsChanged(self):
         """
         Monitor the PKC settings for changes made by the user
@@ -213,156 +457,50 @@ class KodiMonitor(xbmc.Monitor):
         }
         Unfortunately when using Widgets, Kodi doesn't tell us shit
         """
-        self._already_slept = False
-        # Get the type of media we're playing
+        self._already_slept = False # Reset sleep flag for _json_item
+
         try:
             playerid = data['player']['playerid']
-            kodi_id = data['item'].get('id')
-            kodi_type = data['item'].get('type')
-            path = data['item'].get('file')
+            # Initial kodi_type for playerid determination if playerid is -1
+            kodi_type_for_playerid_lookup = data['item'].get('type')
         except (TypeError, KeyError):
-            LOG.info('Aborting playback report - item invalid for updates %s',
-                     data)
+            LOG.info('PlayBackStart: Aborting playback report - item invalid for updates %s', data)
             return
+
         if data['item'].get('channeltype') == 'tv':
-            LOG.info('TV playback detected, aborting Plex playback report')
+            LOG.info('PlayBackStart: TV playback detected, aborting Plex playback report')
             return
+
         if playerid == -1:
-            # Kodi might return -1 for "last player"
-            # Getting the playerid is really a PITA
+            LOG.debug("PlayBackStart: PlayerID is -1, attempting to find active player.")
             try:
                 playerid = js.get_player_ids()[0]
             except IndexError:
-                # E.g. Kodi 18 doesn't tell us anything useful
-                if kodi_type in v.KODI_VIDEOTYPES:
+                LOG.debug("PlayBackStart: No active player found via js.get_player_ids(). Trying playlist type lookup.")
+                if kodi_type_for_playerid_lookup in v.KODI_VIDEOTYPES:
                     playlist_type = v.KODI_TYPE_VIDEO_PLAYLIST
-                elif kodi_type in v.KODI_AUDIOTYPES:
+                elif kodi_type_for_playerid_lookup in v.KODI_AUDIOTYPES:
                     playlist_type = v.KODI_TYPE_AUDIO_PLAYLIST
                 else:
-                    LOG.error('Unexpected type %s, data %s', kodi_type, data)
+                    LOG.error('PlayBackStart: Unexpected kodi_type %s for playerid=-1 lookup, data %s', kodi_type_for_playerid_lookup, data)
                     return
                 playerid = js.get_playlist_id(playlist_type)
-                if not playerid:
-                    LOG.error('Coud not get playerid for data %s', data)
+                if not playerid: # playerid can be 0, which is a valid ID.
+                    LOG.error('PlayBackStart: Could not get playerid for data %s via playlist type %s', data, playlist_type)
                     return
-        playqueue = app.PLAYQUEUES[playerid]
-        info = js.get_player_props(playerid)
-        if playqueue.kodi_playlist_playback:
-            # Kodi will tell us the wrong position - of the playlist, not the
-            # playqueue, when user starts playing from a playlist :-(
-            pos = 0
-            LOG.debug('Detected playback from a Kodi playlist')
-        else:
-            pos = info['position'] if info['position'] != -1 else 0
-            LOG.debug('Detected position %s for %s', pos, playqueue)
-        status = app.PLAYSTATE.player_states[playerid]
-        try:
-            item = playqueue.items[pos]
-            LOG.debug('PKC playqueue item is: %s', item)
-        except IndexError:
-            # PKC playqueue not yet initialized
-            LOG.debug('Position %s not in PKC playqueue yet', pos)
-            initialize = True
-        else:
-            if not kodi_id:
-                kodi_id, kodi_type, path = self._json_item(playerid)
-            if kodi_id and item.kodi_id:
-                if item.kodi_id != kodi_id or item.kodi_type != kodi_type:
-                    LOG.debug('Detected different Kodi id')
-                    initialize = True
-                else:
-                    initialize = False
-            else:
-                # E.g. clips set-up previously with no Kodi DB entry
-                if not path:
-                    kodi_id, kodi_type, path = self._json_item(playerid)
-                if path == '':
-                    LOG.debug('Detected empty path: aborting playback report')
-                    return
-                if item.file != path:
-                    # Clips will get a new path
-                    LOG.debug('Detected different path')
-                    try:
-                        tmp_plex_id = int(utils.REGEX_PLEX_ID.findall(path)[0])
-                    except (IndexError, TypeError):
-                        LOG.debug('No Plex id in path, need to init playqueue')
-                        initialize = True
-                    else:
-                        if tmp_plex_id == item.plex_id:
-                            LOG.debug('Detected different path for the same id')
-                            initialize = False
-                        else:
-                            LOG.debug('Different Plex id, need to init playqueue')
-                            initialize = True
-                else:
-                    initialize = False
-        if initialize:
-            LOG.debug('Need to initialize Plex and PKC playqueue')
-            if not kodi_id or not kodi_type or not path:
-                kodi_id, kodi_type, path = self._json_item(playerid)
-            plex_id, plex_type = self._get_ids(kodi_id, kodi_type, path)
-            if not plex_id:
-                LOG.debug('No Plex id obtained - aborting playback report')
-                app.PLAYSTATE.player_states[playerid] = copy.deepcopy(app.PLAYSTATE.template)
-                return
-            try:
-                item = PL.init_plex_playqueue(playqueue, plex_id=plex_id)
-            except exceptions.PlaylistError:
-                LOG.info('Could not initialize the Plex playlist')
-                return
-            item.file = path
-            # Set the Plex container key (e.g. using the Plex playqueue)
-            container_key = None
-            if info['playlistid'] != -1:
-                # -1 is Kodi's answer if there is no playlist
-                container_key = app.PLAYQUEUES[playerid].id
-            if container_key is not None:
-                container_key = '/playQueues/%s' % container_key
-            elif plex_id is not None:
-                container_key = '/library/metadata/%s' % plex_id
-        else:
-            LOG.debug('No need to initialize playqueues')
-            kodi_id = item.kodi_id
-            kodi_type = item.kodi_type
-            plex_id = item.plex_id
-            plex_type = item.plex_type
-            path = item.file
-            if playqueue.id:
-                container_key = '/playQueues/%s' % playqueue.id
-            else:
-                container_key = '/library/metadata/%s' % plex_id
-        # Mechanik for Plex skip intro/credits/commercials feature
-        if utils.settings('enableSkipIntro') == 'true' \
-                or utils.settings('enableSkipCredits') == 'true' \
-                or utils.settings('enableSkipCommercials') == 'true':
-            status['markers'] = item.api.markers()
-            status['markers_hidden'] = {}
-            if utils.settings('enableSkipCredits') == 'true':
-                status['first_credits_marker'] = item.api.first_credits_marker()
-                status['final_credits_marker'] = item.api.final_credits_marker()
-        if item.playmethod is None and path and not path.startswith('plugin://'):
-            item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
-        item.playerid = playerid
-        # Remember the currently playing item
-        app.PLAYSTATE.item = item
-        # Remember that this player has been active
-        app.PLAYSTATE.active_players.add(playerid)
-        status.update(info)
-        LOG.debug('Set the Plex container_key to: %s', container_key)
-        status['container_key'] = container_key
-        status['file'] = path
-        status['kodi_id'] = kodi_id
-        status['kodi_type'] = kodi_type
-        status['plex_id'] = plex_id
-        status['plex_type'] = plex_type
-        status['playmethod'] = item.playmethod
-        status['playcount'] = item.playcount
-        status['external_player'] = app.APP.player.isExternalPlayer() == 1
-        LOG.debug('Set the player state: %s', status)
+            LOG.debug("PlayBackStart: Found playerid: %s", playerid)
 
-        if playerid == v.KODI_VIDEO_PLAYER_ID:
-            task = InitVideoStreams(item)
-            backgroundthread.BGThreader.addTask(task)
+        playqueue = app.PLAYQUEUES[playerid]
+
+        # Call the new refactored method
+        # current_kodi_item_data is 'data' passed to PlayBackStart
+        identified_item = self.try_identify_and_set_plex_item(playerid, playqueue, data)
+
+        if identified_item:
+            LOG.info("PlayBackStart: Successfully identified and set plex item: %s", identified_item.plex_id if hasattr(identified_item, 'plex_id') else "Unknown plex_id")
+        else:
+            LOG.warning("PlayBackStart: Failed to identify and set plex item for playerid %s.", playerid)
+            # try_identify_and_set_plex_item handles resetting player_states and PLAYSTATE.item to None on failure.
 
     def _on_av_change(self, data):
         """
