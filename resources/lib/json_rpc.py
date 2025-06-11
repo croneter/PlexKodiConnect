@@ -415,9 +415,18 @@ def get_item(playerid):
         u'label': u'Okja'
     }
     """
-    return JsonRPC('Player.GetItem').execute({
-        'playerid': playerid,
-        'properties': ['title', 'file']})['result']['item']
+    if properties is None:
+        properties = ['title', 'file', 'type', 'id', 'label']
+
+    try:
+        response = JsonRPC('Player.GetItem').execute({
+            'playerid': playerid,
+            'properties': properties
+        })
+        return response['result']['item']
+    except KeyError:
+        # This will catch if 'result' or 'item' is not in the response
+        return None
 
 
 def get_current_audio_stream_index(playerid):

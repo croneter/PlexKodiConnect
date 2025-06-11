@@ -283,7 +283,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                         playerid_to_recover = active_player_ids[0]
                         log.debug("PlaystateMgr: Attempting recovery for playerid: %s", playerid_to_recover)
                         try:
-                            item_props = js.get_item(playerid_to_recover, ["title", "file", "type", "id"])
+                            item_props = js.get_item(playerid_to_recover, properties=["title", "file", "type", "id"])
                             current_kodi_item_data_for_recovery = {
                                 'player': {'playerid': playerid_to_recover},
                                 'item': item_props if item_props else {}
