@@ -403,7 +403,7 @@ def get_episodes(params):
     return ret
 
 
-def get_item(playerid):
+def get_item(playerid, properties=None):
     """
     UNRELIABLE on playback startup! (as other JSON and Python Kodi functions)
     Returns the following for the currently playing item:

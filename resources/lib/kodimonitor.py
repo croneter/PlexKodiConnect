@@ -474,9 +474,15 @@ class KodiMonitor(xbmc.Monitor):
         try:
             json_item = js.get_item(playerid)
         except KeyError:
-            LOG.debug('No playing item returned by Kodi')
+            LOG.debug('_json_item: No playing item returned by Kodi during js.get_item call (KeyError)')
             return None, None, None
-        LOG.debug('Kodi playing item properties: %s', json_item)
+
+        LOG.debug('_json_item: Kodi playing item properties from js.get_item: %s', json_item)
+
+        if json_item is None:
+            LOG.debug('_json_item: json_item is None after call to js.get_item, returning (None, None, None)')
+            return None, None, None
+
         return (json_item.get('id'),
                 json_item.get('type'),
                 json_item.get('file'))
