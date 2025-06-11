@@ -423,9 +423,17 @@ def get_item(playerid, properties=None):
             'playerid': playerid,
             'properties': properties
         })
-        return response['result']['item']
-    except KeyError:
-        # This will catch if 'result' or 'item' is not in the response
+        # Safer access to dictionary keys
+        if response and 'result' in response and isinstance(response['result'], dict) and 'item' in response['result']:
+            return response['result']['item']
+        else:
+            # Log if the structure is not as expected but no exception was raised
+            # LOG.debug("get_item: Unexpected response structure: %s", response) # Requires LOG to be defined
+            return None
+    except (KeyError, TypeError) as e:
+        # Catch KeyError if 'result' or 'item' are missing in a way not caught by the above check,
+        # or TypeError if response is not a dict as expected.
+        # LOG.debug("get_item: Exception during RPC call or response parsing: %s", e) # Requires LOG to be defined
         return None
 
 
