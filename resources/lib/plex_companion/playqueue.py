@@ -54,7 +54,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
     index = list(range(0, len(old)))
     log.debug('compare_playqueues: Entered. Playqueue ID: %s, Old PKC len: %s, New Kodi len: %s', playqueue.id if playqueue else "N/A", len(old), len(new_kodi_playqueue))
     # log.debug('Comparing new Kodi playqueue %s with our play queue %s', new, old) # Original, more verbose log
-
+    
     for i, new_item_data in enumerate(new): # Renamed new_item to new_item_data to avoid confusion with PlaylistItem instances
         if (new_item_data['file'].startswith('plugin://') and
                 not new_item_data['file'].startswith(PLUGIN)):
@@ -145,7 +145,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
                 log.debug("compare_playqueues: Playqueue %s, adjusting indices from pos %s due to new item insertion.", playqueue.id if playqueue else "N/A", i)
                 for k_loop_var in range(i, len(index)): # Renamed j to k_loop_var to avoid clash
                     index[k_loop_var] += 1
-
+    
     # After iterating through new items, any remaining items in 'old' (tracked by 'index') are deletions.
     for i_loop_var in reversed(index): # Renamed i to i_loop_var
         if app.APP.stop_pkc:
@@ -153,7 +153,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
             # Kodi exit
             log.debug("compare_playqueues: Playqueue %s, PKC stopping, returning from deletion loop.", playqueue.id if playqueue else "N/A")
             return
-
+        
         item_to_delete_plex_id = "N/A"
         if playqueue and i_loop_var < len(playqueue.items) and hasattr(playqueue.items[i_loop_var], 'plex_id'):
              item_to_delete_plex_id = playqueue.items[i_loop_var].plex_id
