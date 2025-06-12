@@ -419,8 +419,8 @@ def get_item(playerid, properties=None):
     }
     """
     if properties is None:
-        properties = ['title', 'file', 'id', 'label']
-
+        properties = ['title', 'file', 'type', 'id', 'label']
+    
     try:
         response = JsonRPC('Player.GetItem').execute({
             'playerid': playerid,
