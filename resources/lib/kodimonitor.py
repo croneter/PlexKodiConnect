@@ -16,7 +16,6 @@ from . import kodi_db
 from .downloadutils import DownloadUtils as DU
 from . import utils, timing, plex_functions as PF
 from . import json_rpc as js, playlist_func as PL
-from .playlist_func import PlaylistItem # Added import
 from . import backgroundthread, app, variables as v
 from . import exceptions
 
@@ -152,83 +151,51 @@ class KodiMonitor(xbmc.Monitor):
             LOG.debug("_initialize_new_plex_item: kodi_id/type/path still missing, calling _json_item.")
             current_kodi_id, current_kodi_type, current_path = self._json_item(playerid)
 
-        # Determine plex_id and plex_type
         plex_id, plex_type = self._get_ids(current_kodi_id, current_kodi_type, current_path)
 
-        if not plex_id: # Fallback for plex_id if _get_ids fails
-            LOG.debug('_initialize_new_plex_item: Initial plex_id fetch using _get_ids failed. Attempting fallback via playqueue.')
+        if not plex_id:
+            LOG.debug('_initialize_new_plex_item: Initial plex_id fetch failed. Attempting fallback via playqueue.')
             try:
+                # 'pos' is passed for this fallback
                 item_at_pos = playqueue.items[pos] 
                 if item_at_pos and hasattr(item_at_pos, 'plex_id') and item_at_pos.plex_id:
                     plex_id = item_at_pos.plex_id
-                    plex_type = item_at_pos.plex_type # Assuming plex_type is also on this item
+                    plex_type = item_at_pos.plex_type
                     LOG.info('_initialize_new_plex_item: Successfully obtained plex_id (%s) and plex_type (%s) using playqueue fallback.', plex_id, plex_type)
                 else:
-                    LOG.debug('_initialize_new_plex_item: Fallback via playqueue.items[pos] failed: item at pos %s has no plex_id or is None.', pos)
+                    LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s in playqueue has no plex_id or is None.', pos)
             except IndexError:
-                LOG.debug('_initialize_new_plex_item: Fallback via playqueue.items[pos] failed: playqueue has no item at pos %s. PQ_Len: %s', pos, len(playqueue.items))
+                LOG.debug('_initialize_new_plex_item: Fallback failed: playqueue has no item at pos %s. PQ_Len: %s', pos, len(playqueue.items))
             except AttributeError:
-                LOG.debug('_initialize_new_plex_item: Fallback via playqueue.items[pos] failed: item at pos %s has no plex_id/plex_type attr.', pos)
+                LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s has no plex_id/plex_type attr.', pos)
             except Exception as e:
-                LOG.error('_initialize_new_plex_item: Fallback via playqueue.items[pos] failed due to an unexpected error: %s', e)
-
-        # NEW LOGIC: Handle cases based on whether plex_id was found
-        if plex_id is None:
-            LOG.info("_initialize_new_plex_item: No Plex ID found after _get_ids and fallback. Creating a transient PlaylistItem for path: %s, type: %s.", current_path, current_kodi_type)
-            item = PlaylistItem() 
-            item.plex_id = None # Explicitly None for transient
-            # Ensure current_kodi_type is used for both plex_type and kodi_type for consistency with transient items
-            # Default to v.KODI_TYPE_VIDEO if current_kodi_type is None (e.g. for some direct paths/pre-rolls)
-            _type = current_kodi_type if current_kodi_type else v.KODI_TYPE_VIDEO
-            item.plex_type = _type 
-            item.kodi_type = _type # Make kodi_type consistent with plex_type for transient items
-            item.file = current_path
-            item.kodi_id = current_kodi_id # Can be None
-            item.guid = f"transient://{current_path}" if current_path else "transient://unknown_path" # More specific guid
-            
-            if current_path and not current_path.startswith('plugin://'):
-                item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
-            else:
-                # Assume plugin if path starts with plugin:// or if path is None/empty (e.g. some pre-rolls might not have path)
-                item.playmethod = v.PLAYBACK_METHOD_PLUGIN 
-            
-            item.playcount = 0 # New item
-            item.title = current_path.split('/')[-1] if current_path else "Pre-roll Item" # Slightly more descriptive default
-            item.offset = 0.0 # Start from beginning
-            # item.duration: PlaylistItem initializes duration to 0, which is acceptable for transient if unknown
-            item.api = None # Very important: no API object for transient items
-            # Other PlaylistItem defaults (part=0, force_transcode=False, resume=None) are fine.
-
-            container_key = None # No container for transient items
-            # final_plex_type should be the type we assigned to the item
-            final_plex_type = item.plex_type 
-            LOG.debug("_initialize_new_plex_item: Created transient PlaylistItem: %s", item)
-            return item, container_key, None, final_plex_type # plex_id is None
+                LOG.error('_initialize_new_plex_item: Fallback failed due to an unexpected error: %s', e)
         
-        else: # plex_id is not None, proceed with existing logic
-            LOG.debug("_initialize_new_plex_item: Plex ID %s found. Proceeding with PL.init_plex_playqueue.", plex_id)
-            try:
-                item = PL.init_plex_playqueue(playqueue, plex_id=plex_id)
-                LOG.debug("_initialize_new_plex_item: Post PL.init_plex_playqueue. Item plex_id: %s, type: %s", item.plex_id if item else "N/A", item.plex_type if item else "N/A")
-                if item:
-                    if current_path: # Ensure current_path is valid before assigning
-                        item.file = current_path 
-                else:
-                    LOG.error("_initialize_new_plex_item: PL.init_plex_playqueue returned None for plex_id %s", plex_id)
-                    return None, None, plex_id, plex_type # Return found plex_id/type but no item
-            except exceptions.PlaylistError:
-                LOG.info('_initialize_new_plex_item: Could not initialize Plex playlist for plex_id %s via PL.init_plex_playqueue.', plex_id)
-                return None, None, plex_id, plex_type # Return found plex_id/type but no item
+        if not plex_id:
+            # Logging for this failure case is now inside the main try_identify_and_set_plex_item
+            return None, None, None, None # Item, container_key, plex_id, plex_type
 
-            container_key = None
-            if playlist_id_from_info != -1:
-                container_key = playqueue.id # Use playqueue.id directly
-            if container_key is not None:
-                container_key = '/playQueues/%s' % container_key
-            elif plex_id is not None: # This will always be true if we are in this else block
-                container_key = '/library/metadata/%s' % plex_id
+        try:
+            item = PL.init_plex_playqueue(playqueue, plex_id=plex_id) # kodi_item not passed, relies on plex_id
+            LOG.debug("_initialize_new_plex_item: Post PL.init_plex_playqueue. Item plex_id: %s, type: %s", item.plex_id if item else "N/A", item.plex_type if item else "N/A")
+            if item:
+                item.file = current_path # Set the file path
+            else: # Should not happen if PlaylistError isn't raised, but good check
+                LOG.error("_initialize_new_plex_item: PL.init_plex_playqueue returned None for plex_id %s", plex_id)
+                return None, None, plex_id, plex_type 
+        except exceptions.PlaylistError:
+            LOG.info('_initialize_new_plex_item: Could not initialize Plex playlist for plex_id %s', plex_id)
+            return None, None, plex_id, plex_type # Return current plex_id/type even if init fails
+
+        container_key = None
+        if playlist_id_from_info != -1: # playlist_id_from_info is player_info['playlistid']
+            container_key = app.PLAYQUEUES[playerid].id # This should be playqueue.id
+        if container_key is not None:
+            container_key = '/playQueues/%s' % container_key
+        elif plex_id is not None:
+            container_key = '/library/metadata/%s' % plex_id
             
-            return item, container_key, plex_id, plex_type
+        return item, container_key, plex_id, plex_type
 
     def _prepare_existing_plex_item(self, item_from_playqueue, playqueue):
         LOG.debug('_prepare_existing_plex_item: Using existing item from playqueue: %s', item_from_playqueue)
@@ -504,43 +471,21 @@ class KodiMonitor(xbmc.Monitor):
             # element otherwise
             self._already_slept = True
             self.waitForAbort(1)
-
-        json_item = None
-        # Attempt 1: Get item with full properties
         try:
-            json_item = js.get_item(playerid, properties=['id', 'type', 'file', 'title', 'label'])
-        except KeyError: # Should ideally not happen if js.get_item handles its own KeyErrors
-            LOG.debug('_json_item: KeyError during initial js.get_item call for playerid %s', playerid)
-            # Proceed to minimal properties call as json_item is still None
+            json_item = js.get_item(playerid)
+        except KeyError:
+            LOG.debug('_json_item: No playing item returned by Kodi during js.get_item call (KeyError)')
+            return None, None, None
         
+        LOG.debug('_json_item: Kodi playing item properties from js.get_item: %s', json_item)
+
         if json_item is None:
-            LOG.debug("_json_item: Initial js.get_item with full properties failed for playerid %s. Trying minimal properties.", playerid)
-            try:
-                json_item_minimal = js.get_item(playerid, properties=['type', 'file', 'title'])
-            except KeyError: # Should ideally not happen
-                LOG.debug('_json_item: KeyError during minimal js.get_item call for playerid %s', playerid)
-                json_item_minimal = None # Ensure it's None
-
-            if json_item_minimal is None:
-                LOG.debug("_json_item: Minimal js.get_item also failed for playerid %s. Returning (None, None, None).", playerid)
-                return None, None, None
-            else:
-                LOG.debug("_json_item: Minimal js.get_item succeeded for playerid %s: %s", playerid, json_item_minimal)
-                json_item = json_item_minimal
-        else:
-            LOG.debug('_json_item: Initial js.get_item with full properties succeeded for playerid %s: %s', playerid, json_item)
-
-        # At this point, json_item is either from the first successful call, the second (minimal) successful call, or it's None if both failed (covered by return above).
-        # However, the logic implies if the first call fails and json_item becomes None, the second call's result (json_item_minimal)
-        # is assigned to json_item. So, if we reach here, json_item should hold some data.
-
-        kodi_id = json_item.get('id') # Will be None if 'id' is not in json_item (e.g., from minimal call)
-        item_type = json_item.get('type')
-        path = json_item.get('file')
-
-        LOG.debug('_json_item: Extracted for playerid %s - KodiID: %s, Type: %s, Path: %s', playerid, kodi_id, item_type, path)
+            LOG.debug('_json_item: json_item is None after call to js.get_item, returning (None, None, None)')
+            return None, None, None
         
-        return kodi_id, item_type, path
+        return (json_item.get('id'),
+                json_item.get('type'),
+                json_item.get('file'))
 
     def PlayBackStart(self, data):
         """
