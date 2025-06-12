@@ -641,5 +641,4 @@ def item_details(kodi_id, kodi_type):
             "watchedepisodes": str(ret["watchedepisodes"]),
             "unwatchedepisodes": str(ret["episode"] - ret["watchedepisodes"])
         }
-    return ret
-
+    return re
