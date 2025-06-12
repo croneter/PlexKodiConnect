@@ -145,7 +145,7 @@ class KodiMonitor(xbmc.Monitor):
 
     def _initialize_new_plex_item(self, playerid, playqueue, pos, current_kodi_id, current_kodi_type, current_path, playlist_id_from_info):
         LOG.debug('_initialize_new_plex_item: Initializing. PlayerID: %s, KodiID: %s, Path: %s', playerid, current_kodi_id, current_path)
-    
+
         if not current_kodi_id or not current_kodi_type or not current_path:
             LOG.debug("_initialize_new_plex_item: kodi_id/type/path still missing, calling _json_item.")
             current_kodi_id, current_kodi_type, current_path = self._json_item(playerid)
