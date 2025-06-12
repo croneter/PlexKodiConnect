@@ -431,7 +431,6 @@ class KodiMonitor(xbmc.Monitor):
         }
         Will NOT be called if playback initiated by Kodi widgets
         """
-        pass
 
     def _playlist_onremove(self, data):
         """
