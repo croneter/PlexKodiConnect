@@ -18,8 +18,8 @@ from .. import timing
 
 
 # Disable annoying requests warnings
-import requests.packages.urllib3
-requests.packages.urllib3.disable_warnings()
+# import requests.packages.urllib3
+# requests.packages.urllib3.disable_warnings()
 
 log = getLogger('PLEX.companion.playstate')
 
@@ -172,19 +172,6 @@ class PlaystateMgr(backgroundthread.KillableThread):
         """
         url = f'{app.CONN.server}/:/timeline'
         self._get_requests_session()
-
-        # Check for transient items
-        if app.PLAYSTATE.item and app.PLAYSTATE.item.plex_id is None:
-            log.debug("PlaystateMgr: Skipping PMS timeline update for transient item (plex_id is None). PlayerID: %s, Item: %s", playerid, app.PLAYSTATE.item.title if hasattr(app.PLAYSTATE.item, 'title') else 'Unknown Title')
-            # Update last_pms_msg state to stopped if the transient item itself has stopped,
-            # to prevent sending stale 'playing' states for previous real items.
-            if message[playerid].attrib.get('state') == 'stopped':
-                 # Ensure playerid exists in last_pms_msg before updating
-                if playerid not in self.last_pms_msg:
-                    self.last_pms_msg[playerid] = {} # Initialize if not present
-                self.last_pms_msg[playerid].update({'state': 'stopped'})
-            return
-
         if message[playerid].attrib.get('state') != 'stopped':
             params = proxy_params()
             params.update(message[playerid].attrib)
@@ -296,7 +283,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                         playerid_to_recover = active_player_ids[0] 
                         log.debug("PlaystateMgr: Attempting recovery for playerid: %s", playerid_to_recover)
                         try:
-                            item_props = js.get_item(playerid_to_recover, properties=['id', 'type', 'file', 'title', 'label'])
+                            item_props = js.get_item(playerid_to_recover, properties=["title", "file", "type", "id"])
                             current_kodi_item_data_for_recovery = {
                                 'player': {'playerid': playerid_to_recover},
                                 'item': item_props if item_props else {} 
