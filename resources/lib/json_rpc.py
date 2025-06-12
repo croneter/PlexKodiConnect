@@ -406,38 +406,23 @@ def get_episodes(params):
     return ret
 
 
-def get_item(playerid, properties=None):
-    """
-    UNRELIABLE on playback startup! (as other JSON and Python Kodi functions)
-    Returns the following for the currently playing item:
-    {
-        u'title': u'Okja',
-        u'type': u'movie',
-        u'id': 258,
-        u'file': u'smb://...movie.mkv',
-        u'label': u'Okja'
-    }
-    """
-    if properties is None:
-        properties = ['title', 'file', 'type', 'id', 'label']
-    
-    try:
-        response = JsonRPC('Player.GetItem').execute({
-            'playerid': playerid,
-            'properties': properties
-        })
-        # Safer access to dictionary keys
-        if response and 'result' in response and isinstance(response['result'], dict) and 'item' in response['result']:
-            return response['result']['item']
-        else:
-            # Log if the structure is not as expected but no exception was raised
-            log.debug("get_item: Unexpected response structure for playerid %s: %s", playerid, response)
-            return None
-    except (KeyError, TypeError) as e:
-        # Catch KeyError if 'result' or 'item' are missing in a way not caught by the above check,
-        # or TypeError if response is not a dict as expected.
-        log.debug("get_item: Error processing JSON-RPC response for playerid %s - %s: %s", playerid, type(e).__name__, e)
-        return None
+def get_item(playerid):
+            # Docstring remains as is
+            try:
+                # Request only 'title' and 'file' properties
+                response = JsonRPC('Player.GetItem').execute({
+                    'playerid': playerid,
+                    'properties': ['title', 'file']
+                })
+                # Safer access to dictionary keys
+                if response and 'result' in response and isinstance(response['result'], dict) and 'item' in response['result']:
+                    return response['result']['item']
+                else:
+                    log.debug("get_item: Unexpected response structure for playerid %s: %s", playerid, response)
+                    return None
+            except Exception as e:
+                log.debug("get_item: Failed to get item for playerid %s - %s: %s", playerid, type(e).__name__, e)
+                return None
 
 
 def get_current_audio_stream_index(playerid):
@@ -657,3 +642,4 @@ def item_details(kodi_id, kodi_type):
             "unwatchedepisodes": str(ret["episode"] - ret["watchedepisodes"])
         }
     return ret
+
