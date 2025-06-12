@@ -145,57 +145,69 @@ class KodiMonitor(xbmc.Monitor):
 
     def _initialize_new_plex_item(self, playerid, playqueue, pos, current_kodi_id, current_kodi_type, current_path, playlist_id_from_info):
         LOG.debug('_initialize_new_plex_item: Initializing. PlayerID: %s, KodiID: %s, Path: %s', playerid, current_kodi_id, current_path)
-
-        # Ensure kodi_id, type, path are sourced if still missing (e.g., if _determine_initialization_need decided to init due to IndexError)
+    
         if not current_kodi_id or not current_kodi_type or not current_path:
             LOG.debug("_initialize_new_plex_item: kodi_id/type/path still missing, calling _json_item.")
             current_kodi_id, current_kodi_type, current_path = self._json_item(playerid)
-
+    
         plex_id, plex_type = self._get_ids(current_kodi_id, current_kodi_type, current_path)
-
+    
         if not plex_id:
-            LOG.debug('_initialize_new_plex_item: Initial plex_id fetch failed. Attempting fallback via playqueue.')
-            try:
-                # 'pos' is passed for this fallback
-                item_at_pos = playqueue.items[pos]
-                if item_at_pos and hasattr(item_at_pos, 'plex_id') and item_at_pos.plex_id:
-                    plex_id = item_at_pos.plex_id
-                    plex_type = item_at_pos.plex_type
-                    LOG.info('_initialize_new_plex_item: Successfully obtained plex_id (%s) and plex_type (%s) using playqueue fallback.', plex_id, plex_type)
-                else:
-                    LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s in playqueue has no plex_id or is None.', pos)
-            except IndexError:
-                LOG.debug('_initialize_new_plex_item: Fallback failed: playqueue has no item at pos %s. PQ_Len: %s', pos, len(playqueue.items))
-            except AttributeError:
-                LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s has no plex_id/plex_type attr.', pos)
-            except Exception as e:
-                LOG.error('_initialize_new_plex_item: Fallback failed due to an unexpected error: %s', e)
-
+            plex_id, plex_type = self._fallback_plex_id_from_playqueue(playqueue, pos)
+    
         if not plex_id:
-            # Logging for this failure case is now inside the main try_identify_and_set_plex_item
-            return None, None, None, None # Item, container_key, plex_id, plex_type
+            return None, None, None, None
+    
+        item, item_success = self._initialize_plex_playqueue_item(playqueue, plex_id, current_path)
+        if not item_success:
+            return None, None, plex_id, plex_type
+    
+        container_key = self._build_container_key(playerid, playlist_id_from_info, plex_id)
+    
+        return item, container_key, plex_id, plex_type
 
+    def _fallback_plex_id_from_playqueue(self, playqueue, pos):
+        LOG.debug('_initialize_new_plex_item: Initial plex_id fetch failed. Attempting fallback via playqueue.')
         try:
-            item = PL.init_plex_playqueue(playqueue, plex_id=plex_id) # kodi_item not passed, relies on plex_id
+            item_at_pos = playqueue.items[pos]
+            if item_at_pos and hasattr(item_at_pos, 'plex_id') and item_at_pos.plex_id:
+                plex_id = item_at_pos.plex_id
+                plex_type = item_at_pos.plex_type
+                LOG.info('_initialize_new_plex_item: Successfully obtained plex_id (%s) and plex_type (%s) using playqueue fallback.', plex_id, plex_type)
+                return plex_id, plex_type
+            else:
+                LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s in playqueue has no plex_id or is None.', pos)
+        except IndexError:
+            LOG.debug('_initialize_new_plex_item: Fallback failed: playqueue has no item at pos %s. PQ_Len: %s', pos, len(playqueue.items))
+        except AttributeError:
+            LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s has no plex_id/plex_type attr.', pos)
+        except Exception as e:
+            LOG.error('_initialize_new_plex_item: Fallback failed due to an unexpected error: %s', e)
+    
+        return None, None
+
+    def _initialize_plex_playqueue_item(self, playqueue, plex_id, current_path):
+        try:
+            item = PL.init_plex_playqueue(playqueue, plex_id=plex_id)
             LOG.debug("_initialize_new_plex_item: Post PL.init_plex_playqueue. Item plex_id: %s, type: %s", item.plex_id if item else "N/A", item.plex_type if item else "N/A")
             if item:
-                item.file = current_path # Set the file path
-            else: # Should not happen if PlaylistError isn't raised, but good check
+                item.file = current_path
+                return item, True
+            else:
                 LOG.error("_initialize_new_plex_item: PL.init_plex_playqueue returned None for plex_id %s", plex_id)
-                return None, None, plex_id, plex_type
+                return None, False
         except exceptions.PlaylistError:
             LOG.info('_initialize_new_plex_item: Could not initialize Plex playlist for plex_id %s', plex_id)
-            return None, None, plex_id, plex_type # Return current plex_id/type even if init fails
+            return None, False
 
+    def _build_container_key(self, playerid, playlist_id_from_info, plex_id):
         container_key = None
-        if playlist_id_from_info != -1: # playlist_id_from_info is player_info['playlistid']
-            container_key = app.PLAYQUEUES[playerid].id # This should be playqueue.id
-        if container_key is not None:
+        if playlist_id_from_info != -1:
+            container_key = app.PLAYQUEUES[playerid].id
             container_key = '/playQueues/%s' % container_key
         elif plex_id is not None:
             container_key = '/library/metadata/%s' % plex_id
-
-        return item, container_key, plex_id, plex_type
+        return container_key
 
     def _prepare_existing_plex_item(self, item_from_playqueue, playqueue):
         LOG.debug('_prepare_existing_plex_item: Using existing item from playqueue: %s', item_from_playqueue)
@@ -339,49 +351,73 @@ class KodiMonitor(xbmc.Monitor):
         if data:
             data = loads(data)
             LOG.debug("Method: %s Data: %s", method, data)
+    
+        handler = {
+            "Player.OnPlay": self._handle_player_on_play,
+            "Player.OnAVChange": self._handle_player_on_avchange,
+            "Player.OnStop": self._handle_player_on_stop,
+            "Playlist.OnAdd": self._handle_playlist_on_add,
+            "Playlist.OnRemove": self._playlist_onremove,
+            "Playlist.OnClear": self._handle_playlist_on_clear,
+            "VideoLibrary.OnUpdate": self._handle_videolibrary_on_update,
+            "VideoLibrary.OnRemove": self._handle_videolibrary_on_remove,
+            "System.OnSleep": self._handle_system_on_sleep,
+            "System.OnWake": self._handle_system_on_wake,
+            "GUI.OnScreensaverDeactivated": self._handle_gui_on_screensaver_deactivated,
+            "System.OnQuit": self._handle_system_on_quit,
+        }.get(method)
+    
+        if handler:
+            handler(data)
+        else:
+            LOG.debug("Unhandled Kodi notification method: %s", method)
 
-        if method == "Player.OnPlay":
-            with app.APP.lock_playqueues:
-                self.PlayBackStart(data)
-        elif method == 'Player.OnAVChange':
-            with app.APP.lock_playqueues:
-                self._on_av_change(data)
-        elif method == "Player.OnStop":
-            with app.APP.lock_playqueues:
-                _playback_cleanup(ended=data.get('end'))
-        elif method == 'Playlist.OnAdd':
-            if 'item' in data and data['item'].get('type') == v.KODI_TYPE_SHOW:
-                # Hitting the "browse" button on tv show info dialog
-                # Hence show the tv show directly
-                xbmc.executebuiltin("Dialog.Close(all, true)")
-                js.activate_window('videos',
-                                   'videodb://tvshows/titles/%s/' % data['item']['id'])
-            with app.APP.lock_playqueues:
-                self._playlist_onadd(data)
-        elif method == 'Playlist.OnRemove':
-            self._playlist_onremove(data)
-        elif method == 'Playlist.OnClear':
-            with app.APP.lock_playqueues:
-                self._playlist_onclear(data)
-        elif method == "VideoLibrary.OnUpdate":
-            with app.APP.lock_playqueues:
-                _videolibrary_onupdate(data)
-        elif method == "VideoLibrary.OnRemove":
-            pass
-        elif method == "System.OnSleep":
-            # Connection is going to sleep
-            LOG.info("Marking the server as offline. SystemOnSleep activated.")
-        elif method == "System.OnWake":
-            # Allow network to wake up
-            self.waitForAbort(10)
-            app.CONN.online = False
-        elif method == "GUI.OnScreensaverDeactivated":
-            if utils.settings('dbSyncScreensaver') == "true":
-                self.waitForAbort(5)
-                app.SYNC.run_lib_scan = 'full'
-        elif method == "System.OnQuit":
-            LOG.info('Kodi OnQuit detected - shutting down')
-            app.APP.stop_pkc = True
+    def _handle_player_on_play(self, data):
+        with app.APP.lock_playqueues:
+            self.PlayBackStart(data)
+    
+    def _handle_player_on_avchange(self, data):
+        with app.APP.lock_playqueues:
+            self._on_av_change(data)
+    
+    def _handle_player_on_stop(self, data):
+        with app.APP.lock_playqueues:
+            _playback_cleanup(ended=data.get('end'))
+    
+    def _handle_playlist_on_add(self, data):
+        if 'item' in data and data['item'].get('type') == v.KODI_TYPE_SHOW:
+            xbmc.executebuiltin("Dialog.Close(all, true)")
+            js.activate_window('videos', 'videodb://tvshows/titles/%s/' % data['item']['id'])
+        with app.APP.lock_playqueues:
+            self._playlist_onadd(data)
+    
+    def _handle_playlist_on_clear(self, data):
+        with app.APP.lock_playqueues:
+            self._playlist_onclear(data)
+    
+    def _handle_videolibrary_on_update(self, data):
+        with app.APP.lock_playqueues:
+            _videolibrary_onupdate(data)
+    
+    def _handle_videolibrary_on_remove(self, data):
+        # No action required for VideoLibrary.OnRemove
+        pass
+    
+    def _handle_system_on_sleep(self, data):
+        LOG.info("Marking the server as offline. SystemOnSleep activated.")
+    
+    def _handle_system_on_wake(self, data):
+        self.waitForAbort(10)
+        app.CONN.online = False
+    
+    def _handle_gui_on_screensaver_deactivated(self, data):
+        if utils.settings('dbSyncScreensaver') == "true":
+            self.waitForAbort(5)
+            app.SYNC.run_lib_scan = 'full'
+    
+    def _handle_system_on_quit(self, data):
+        LOG.info('Kodi OnQuit detected - shutting down')
+        app.APP.stop_pkc = True
 
     def _playlist_onadd(self, data):
         """
@@ -405,7 +441,6 @@ class KodiMonitor(xbmc.Monitor):
             u'position': 0
         }
         """
-        pass
 
     @staticmethod
     def _playlist_onclear(data):

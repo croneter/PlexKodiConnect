@@ -54,7 +54,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
     index = list(range(0, len(old)))
     log.debug('compare_playqueues: Entered. Playqueue ID: %s, Old PKC len: %s, New Kodi len: %s', playqueue.id if playqueue else "N/A", len(old), len(new_kodi_playqueue))
     # log.debug('Comparing new Kodi playqueue %s with our play queue %s', new, old) # Original, more verbose log
-    
+
     for i, new_item_data in enumerate(new): # Renamed new_item to new_item_data to avoid confusion with PlaylistItem instances
         if (new_item_data['file'].startswith('plugin://') and
                 not new_item_data['file'].startswith(PLUGIN)):
