@@ -18,8 +18,8 @@ from .. import timing
 
 
 # Disable annoying requests warnings
-import requests.packages.urllib3
-requests.packages.urllib3.disable_warnings()
+# import requests.packages.urllib3
+# requests.packages.urllib3.disable_warnings()
 
 log = getLogger('PLEX.companion.playstate')
 
