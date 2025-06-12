@@ -5,9 +5,12 @@ Collection of functions using the Kodi JSON RPC interface.
 See http://kodi.wiki/view/JSON-RPC_API
 """
 from json import loads, dumps
+from logging import getLogger # Added import
 from xbmc import executeJSONRPC
 
 from . import kodi_constants, timing, variables as v
+
+log = getLogger('PLEX.json_rpc') # Added logger instance
 
 JSON_FROM_KODITYPE = {
     v.KODI_TYPE_MOVIE: ('VideoLibrary.GetMovieDetails',
@@ -428,12 +431,12 @@ def get_item(playerid, properties=None):
             return response['result']['item']
         else:
             # Log if the structure is not as expected but no exception was raised
-            # LOG.debug("get_item: Unexpected response structure: %s", response) # Requires LOG to be defined
+            log.debug("get_item: Unexpected response structure for playerid %s: %s", playerid, response)
             return None
     except (KeyError, TypeError) as e:
         # Catch KeyError if 'result' or 'item' are missing in a way not caught by the above check,
         # or TypeError if response is not a dict as expected.
-        # LOG.debug("get_item: Exception during RPC call or response parsing: %s", e) # Requires LOG to be defined
+        log.debug("get_item: Error processing JSON-RPC response for playerid %s - %s: %s", playerid, type(e).__name__, e)
         return None
 
 
