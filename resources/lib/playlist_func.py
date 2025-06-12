@@ -187,6 +187,14 @@ class PlaylistItem(object):
         Builds audio and subtitle streams and enables matching between Plex
         and Kodi using self.audio_streams and self.subtitle_streams
         """
+        if self.api is None:
+            LOG.debug("PlaylistItem._process_streams: self.api is None (transient item?). Setting empty stream lists. Item file: %s", self.file)
+            self._video_streams = []
+            self._audio_streams = []
+            self._subtitle_streams = []
+            self._streams_have_been_processed = True
+            return
+
         # The playqueue response from the PMS does not contain a stream filename
         # thanks Plex
         self._subtitle_streams = accessible_plex_subtitles(
