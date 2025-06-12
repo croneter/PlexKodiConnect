@@ -149,7 +149,7 @@ class KodiMonitor(xbmc.Monitor):
         if not current_kodi_id or not current_kodi_type or not current_path:
             LOG.debug("_initialize_new_plex_item: kodi_id/type/path still missing, calling _json_item.")
             current_kodi_id, current_kodi_type, current_path = self._json_item(playerid)
-    
+
         plex_id, plex_type = self._get_ids(current_kodi_id, current_kodi_type, current_path)
     
         if not plex_id:
