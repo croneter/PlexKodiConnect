@@ -154,16 +154,16 @@ class KodiMonitor(xbmc.Monitor):
 
         if not plex_id:
             plex_id, plex_type = self._fallback_plex_id_from_playqueue(playqueue, pos)
-    
+
         if not plex_id:
             return None, None, None, None
-    
+
         item, item_success = self._initialize_plex_playqueue_item(playqueue, plex_id, current_path)
         if not item_success:
             return None, None, plex_id, plex_type
-    
+
         container_key = self._build_container_key(playerid, playlist_id_from_info, plex_id)
-    
+
         return item, container_key, plex_id, plex_type
 
     def _fallback_plex_id_from_playqueue(self, playqueue, pos):
@@ -183,7 +183,7 @@ class KodiMonitor(xbmc.Monitor):
             LOG.debug('_initialize_new_plex_item: Fallback failed: item at pos %s has no plex_id/plex_type attr.', pos)
         except Exception as e:
             LOG.error('_initialize_new_plex_item: Fallback failed due to an unexpected error: %s', e)
-    
+
         return None, None
 
     def _initialize_plex_playqueue_item(self, playqueue, plex_id, current_path):
@@ -351,7 +351,7 @@ class KodiMonitor(xbmc.Monitor):
         if data:
             data = loads(data)
             LOG.debug("Method: %s Data: %s", method, data)
-    
+
         handler = {
             "Player.OnPlay": self._handle_player_on_play,
             "Player.OnAVChange": self._handle_player_on_avchange,
@@ -366,7 +366,7 @@ class KodiMonitor(xbmc.Monitor):
             "GUI.OnScreensaverDeactivated": self._handle_gui_on_screensaver_deactivated,
             "System.OnQuit": self._handle_system_on_quit,
         }.get(method)
-    
+
         if handler:
             handler(data)
         else:
@@ -375,46 +375,46 @@ class KodiMonitor(xbmc.Monitor):
     def _handle_player_on_play(self, data):
         with app.APP.lock_playqueues:
             self.PlayBackStart(data)
-    
+
     def _handle_player_on_avchange(self, data):
         with app.APP.lock_playqueues:
             self._on_av_change(data)
-    
+
     def _handle_player_on_stop(self, data):
         with app.APP.lock_playqueues:
             _playback_cleanup(ended=data.get('end'))
-    
+
     def _handle_playlist_on_add(self, data):
         if 'item' in data and data['item'].get('type') == v.KODI_TYPE_SHOW:
             xbmc.executebuiltin("Dialog.Close(all, true)")
             js.activate_window('videos', 'videodb://tvshows/titles/%s/' % data['item']['id'])
         with app.APP.lock_playqueues:
             self._playlist_onadd(data)
-    
+
     def _handle_playlist_on_clear(self, data):
         with app.APP.lock_playqueues:
             self._playlist_onclear(data)
-    
+
     def _handle_videolibrary_on_update(self, data):
         with app.APP.lock_playqueues:
             _videolibrary_onupdate(data)
-    
+
     def _handle_videolibrary_on_remove(self, data):
         # No action required for VideoLibrary.OnRemove
         pass
-    
+
     def _handle_system_on_sleep(self, data):
         LOG.info("Marking the server as offline. SystemOnSleep activated.")
-    
+
     def _handle_system_on_wake(self, data):
         self.waitForAbort(10)
         app.CONN.online = False
-    
+
     def _handle_gui_on_screensaver_deactivated(self, data):
         if utils.settings('dbSyncScreensaver') == "true":
             self.waitForAbort(5)
             app.SYNC.run_lib_scan = 'full'
-    
+
     def _handle_system_on_quit(self, data):
         LOG.info('Kodi OnQuit detected - shutting down')
         app.APP.stop_pkc = True
