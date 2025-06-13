@@ -166,4 +166,3 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
             log.error('This is likely caused by mixing audio and '
                       'video tracks in the Kodi playqueue')
     log.debug('compare_playqueues: Finished. Playqueue ID: %s, Final PKC item count: %s', playqueue.id if playqueue else "N/A", len(playqueue.items) if playqueue else "N/A")
- 
