@@ -151,7 +151,7 @@ class KodiMonitor(xbmc.Monitor):
             current_kodi_id, current_kodi_type, current_path = self._json_item(playerid)
 
         plex_id, plex_type = self._get_ids(current_kodi_id, current_kodi_type, current_path)
-    
+
         if not plex_id:
             plex_id, plex_type = self._fallback_plex_id_from_playqueue(playqueue, pos)
     
