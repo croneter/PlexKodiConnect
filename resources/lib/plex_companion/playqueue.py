@@ -153,7 +153,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
             # Kodi exit
             log.debug("compare_playqueues: Playqueue %s, PKC stopping, returning from deletion loop.", playqueue.id if playqueue else "N/A")
             return
-        
+
         item_to_delete_plex_id = "N/A"
         if playqueue and i_loop_var < len(playqueue.items) and hasattr(playqueue.items[i_loop_var], 'plex_id'):
              item_to_delete_plex_id = playqueue.items[i_loop_var].plex_id

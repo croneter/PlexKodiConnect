@@ -260,7 +260,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
 
                             # compare old and new playqueue
                             compare_playqueues(playqueue, kodi_pl)
-                            
+
                             if is_music_playqueue:
                                 current_plex_ids = "N/A"
                                 try:
@@ -299,7 +299,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                             item_props = js.get_item(playerid_to_recover)
                             current_kodi_item_data_for_recovery = {
                                 'player': {'playerid': playerid_to_recover},
-                                'item': item_props if item_props else {} 
+                                'item': item_props if item_props else {}
                             }
                             playqueue_to_recover = app.PLAYQUEUES[playerid_to_recover]
 
@@ -323,7 +323,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                         log.debug("PlaystateMgr: Recovery requested, but no active player IDs found by js.get_player_ids().")
                 else:
                     log.debug("PlaystateMgr: No app.PLAYSTATE.item and no active players detected by js.get_players() at recovery point.")
-                
+
                 self.sleep(1)
                 continue
             else:

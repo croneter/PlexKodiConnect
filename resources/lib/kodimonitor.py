@@ -146,7 +146,7 @@ class KodiMonitor(xbmc.Monitor):
 
     def _initialize_new_plex_item(self, playerid, playqueue, pos, current_kodi_id, current_kodi_type, current_path, playlist_id_from_info):
         LOG.debug('_initialize_new_plex_item: Initializing. PlayerID: %s, KodiID: %s, Path: %s', playerid, current_kodi_id, current_path)
-        
+
         # Ensure kodi_id, type, path are sourced if still missing (e.g., if _determine_initialization_need decided to init due to IndexError)
         if not current_kodi_id or not current_kodi_type or not current_path:
             LOG.debug("_initialize_new_plex_item: kodi_id/type/path still missing, calling _json_item.")
@@ -185,13 +185,13 @@ class KodiMonitor(xbmc.Monitor):
             item.file = current_path
             item.kodi_id = current_kodi_id # Can be None
             item.guid = f"transient://{current_path}" if current_path else "transient://unknown_path" # More specific guid
-            
+
             if current_path and not current_path.startswith('plugin://'):
                 item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
             else:
                 # Assume plugin if path starts with plugin:// or if path is None/empty (e.g. some pre-rolls might not have path)
                 item.playmethod = v.PLAYBACK_METHOD_PLUGIN
-            
+
             item.playcount = 0 # New item
             item.title = current_path.split('/')[-1] if current_path else "Pre-roll Item" # Slightly more descriptive default
             item.offset = 0.0 # Start from beginning
@@ -204,7 +204,7 @@ class KodiMonitor(xbmc.Monitor):
             final_plex_type = item.plex_type
             LOG.debug("_initialize_new_plex_item: Created transient PlaylistItem: %s", item)
             return item, container_key, None, final_plex_type # plex_id is None
-        
+
         else: # plex_id is not None, proceed with existing logic
             LOG.debug("_initialize_new_plex_item: Plex ID %s found. Proceeding with PL.init_plex_playqueue.", plex_id)
             try:
@@ -227,7 +227,7 @@ class KodiMonitor(xbmc.Monitor):
                 container_key = '/playQueues/%s' % container_key
             elif plex_id is not None: # This will always be true if we are in this else block
                 container_key = '/library/metadata/%s' % plex_id
-            
+
             return item, container_key, plex_id, plex_type
 
     def _prepare_existing_plex_item(self, item_from_playqueue, playqueue):
@@ -247,7 +247,7 @@ class KodiMonitor(xbmc.Monitor):
             container_key = '/playQueues/%s' % playqueue.id
         else:
             container_key = '/library/metadata/%s' % plex_id
-            
+
         return item_from_playqueue, container_key, kodi_id, kodi_type, plex_id, plex_type, path
 
     def _finalize_and_update_status(self, playerid, item, container_key, path, kodi_id, kodi_type, plex_id, plex_type, initial_player_info):
@@ -268,13 +268,13 @@ class KodiMonitor(xbmc.Monitor):
 
         if item.playmethod is None and path and not path.startswith('plugin://'):
             item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
-        
+
         item.playerid = playerid
-        
+
         LOG.info("_finalize_and_update_status: Assigning to app.PLAYSTATE.item: plex_id=%s, type=%s, file=%s", item.plex_id, item.plex_type, item.file)
         app.PLAYSTATE.item = item
         app.PLAYSTATE.active_players.add(playerid)
-        
+
         status.update(initial_player_info)
         LOG.debug('_finalize_and_update_status: Set Plex container_key to: %s', container_key)
         status['container_key'] = container_key
@@ -291,7 +291,7 @@ class KodiMonitor(xbmc.Monitor):
         if playerid == v.KODI_VIDEO_PLAYER_ID:
             task = InitVideoStreams(item)
             backgroundthread.BGThreader.addTask(task)
-        
+
         return item
 
     def try_identify_and_set_plex_item(self, playerid, playqueue, current_kodi_item_data):
@@ -302,7 +302,7 @@ class KodiMonitor(xbmc.Monitor):
         # if it calls _json_item.
         should_init, item_from_pq, current_kodi_id, current_kodi_type, current_path = \
             self._determine_initialization_need(playerid, playqueue, pos, initial_kodi_id, initial_kodi_type, initial_path)
-        
+
         # Handle empty path from _determine_initialization_need if it was from _json_item
         if current_path == '' and (not initial_path or initial_path == '') : # Path was identified as problematic (empty string)
              LOG.debug('try_identify_and_set_plex_item: Detected empty path from _determine_initialization_need. Aborting.')
@@ -512,7 +512,7 @@ class KodiMonitor(xbmc.Monitor):
         except KeyError: # Should ideally not happen if js.get_item handles its own KeyErrors
             LOG.debug('_json_item: KeyError during initial js.get_item call for playerid %s', playerid)
             # Proceed to minimal properties call as json_item is still None
-        
+
         if json_item is None:
             LOG.debug("_json_item: Initial js.get_item with full properties failed for playerid %s. Trying minimal properties.", playerid)
             try:
@@ -539,7 +539,7 @@ class KodiMonitor(xbmc.Monitor):
         path = json_item.get('file')
 
         LOG.debug('_json_item: Extracted for playerid %s - KodiID: %s, Type: %s, Path: %s', playerid, kodi_id, item_type, path)
-        
+
         return kodi_id, item_type, path
 
     def PlayBackStart(self, data):
@@ -552,7 +552,7 @@ class KodiMonitor(xbmc.Monitor):
         Unfortunately when using Widgets, Kodi doesn't tell us shit
         """
         self._already_slept = False # Reset sleep flag for _json_item
-        
+
         try:
             playerid = data['player']['playerid']
             # Initial kodi_type for playerid determination if playerid is -1
@@ -585,7 +585,7 @@ class KodiMonitor(xbmc.Monitor):
             LOG.debug("PlayBackStart: Found playerid: %s", playerid)
 
         playqueue = app.PLAYQUEUES[playerid]
-        
+
         # Call the new refactored method
         # current_kodi_item_data is 'data' passed to PlayBackStart
         identified_item = self.try_identify_and_set_plex_item(playerid, playqueue, data)
