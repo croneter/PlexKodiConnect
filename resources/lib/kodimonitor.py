@@ -67,7 +67,7 @@ class KodiMonitor(xbmc.Monitor):
         else:
             pos = player_info['position'] if player_info['position'] != -1 else 0
             LOG.debug('_gather_initial_playback_info: Detected position %s for playerid %s', pos, playerid)
-        
+
         return initial_kodi_id, initial_kodi_type, initial_path, player_info, pos
 
     def _determine_initialization_need(self, playerid, playqueue, pos, current_kodi_id, current_kodi_type, current_path):
@@ -158,7 +158,7 @@ class KodiMonitor(xbmc.Monitor):
         if not plex_id: # Fallback for plex_id if _get_ids fails
             LOG.debug('_initialize_new_plex_item: Initial plex_id fetch using _get_ids failed. Attempting fallback via playqueue.')
             try:
-                item_at_pos = playqueue.items[pos] 
+                item_at_pos = playqueue.items[pos]
                 if item_at_pos and hasattr(item_at_pos, 'plex_id') and item_at_pos.plex_id:
                     plex_id = item_at_pos.plex_id
                     plex_type = item_at_pos.plex_type # Assuming plex_type is also on this item
@@ -175,12 +175,12 @@ class KodiMonitor(xbmc.Monitor):
         # NEW LOGIC: Handle cases based on whether plex_id was found
         if plex_id is None:
             LOG.info("_initialize_new_plex_item: No Plex ID found after _get_ids and fallback. Creating a transient PlaylistItem for path: %s, type: %s.", current_path, current_kodi_type)
-            item = PlaylistItem() 
+            item = PlaylistItem()
             item.plex_id = None # Explicitly None for transient
             # Ensure current_kodi_type is used for both plex_type and kodi_type for consistency with transient items
             # Default to v.KODI_TYPE_VIDEO if current_kodi_type is None (e.g. for some direct paths/pre-rolls)
             _type = current_kodi_type if current_kodi_type else v.KODI_TYPE_VIDEO
-            item.plex_type = _type 
+            item.plex_type = _type
             item.kodi_type = _type # Make kodi_type consistent with plex_type for transient items
             item.file = current_path
             item.kodi_id = current_kodi_id # Can be None
@@ -190,7 +190,7 @@ class KodiMonitor(xbmc.Monitor):
                 item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
             else:
                 # Assume plugin if path starts with plugin:// or if path is None/empty (e.g. some pre-rolls might not have path)
-                item.playmethod = v.PLAYBACK_METHOD_PLUGIN 
+                item.playmethod = v.PLAYBACK_METHOD_PLUGIN
             
             item.playcount = 0 # New item
             item.title = current_path.split('/')[-1] if current_path else "Pre-roll Item" # Slightly more descriptive default
@@ -201,7 +201,7 @@ class KodiMonitor(xbmc.Monitor):
 
             container_key = None # No container for transient items
             # final_plex_type should be the type we assigned to the item
-            final_plex_type = item.plex_type 
+            final_plex_type = item.plex_type
             LOG.debug("_initialize_new_plex_item: Created transient PlaylistItem: %s", item)
             return item, container_key, None, final_plex_type # plex_id is None
         
@@ -212,7 +212,7 @@ class KodiMonitor(xbmc.Monitor):
                 LOG.debug("_initialize_new_plex_item: Post PL.init_plex_playqueue. Item plex_id: %s, type: %s", item.plex_id if item else "N/A", item.plex_type if item else "N/A")
                 if item:
                     if current_path: # Ensure current_path is valid before assigning
-                        item.file = current_path 
+                        item.file = current_path
                 else:
                     LOG.error("_initialize_new_plex_item: PL.init_plex_playqueue returned None for plex_id %s", plex_id)
                     return None, None, plex_id, plex_type # Return found plex_id/type but no item
@@ -313,7 +313,7 @@ class KodiMonitor(xbmc.Monitor):
         container_key = None
         final_kodi_id = current_kodi_id
         final_kodi_type = current_kodi_type
-        final_plex_id = None 
+        final_plex_id = None
         final_plex_type = None
         final_path = current_path
 
@@ -321,7 +321,7 @@ class KodiMonitor(xbmc.Monitor):
             item, container_key, final_plex_id, final_plex_type = \
                 self._initialize_new_plex_item(playerid, playqueue, pos, current_kodi_id, current_kodi_type, current_path, player_info['playlistid'])
             if item:
-                final_path = item.file 
+                final_path = item.file
                 final_kodi_id = item.kodi_id if hasattr(item, 'kodi_id') and item.kodi_id is not None else current_kodi_id
                 final_kodi_type = item.kodi_type if hasattr(item, 'kodi_type') and item.kodi_type is not None else current_kodi_type
             # If item is None here, it means initialization failed to produce a usable item.
@@ -556,7 +556,7 @@ class KodiMonitor(xbmc.Monitor):
         try:
             playerid = data['player']['playerid']
             # Initial kodi_type for playerid determination if playerid is -1
-            kodi_type_for_playerid_lookup = data['item'].get('type') 
+            kodi_type_for_playerid_lookup = data['item'].get('type')
         except (TypeError, KeyError):
             LOG.info('PlayBackStart: Aborting playback report - item invalid for updates %s', data)
             return

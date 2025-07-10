@@ -247,7 +247,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                     kodi_pl = js.playlist_get_items(playqueue.playlistid)
                     if playqueue.old_kodi_pl != kodi_pl:
                         is_music_playqueue = hasattr(playqueue, 'type') and playqueue.type == v.KODI_TYPE_AUDIO_PLAYLIST # Ensure 'v' is imported
-                        
+
                         if playqueue.id is None and (not app.SYNC.direct_paths or
                                                      app.PLAYSTATE.context_menu_play):
                             # Only initialize if directly fired up using direct
@@ -255,7 +255,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                             log.debug('Not yet initiating playback')
                         else:
                             if is_music_playqueue:
-                                log.debug("PlaystateMgr: Music playqueue change detected. Calling compare_playqueues for playqueue.id: %s. Old len: %s, New len: %s", 
+                                log.debug("PlaystateMgr: Music playqueue change detected. Calling compare_playqueues for playqueue.id: %s. Old len: %s, New len: %s",
                                           playqueue.id, len(playqueue.old_kodi_pl) if playqueue.old_kodi_pl else "N/A", len(kodi_pl))
                             
                             # compare old and new playqueue
@@ -267,7 +267,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                                     current_plex_ids = [item.plex_id for item in playqueue.items if hasattr(item, 'plex_id')]
                                 except Exception as e:
                                     log.debug("PlaystateMgr: Error getting plex_ids for logging: %s", e)
-                                log.debug("PlaystateMgr: compare_playqueues finished for music playqueue.id: %s. New playqueue.items len: %s, plex_ids: %s", 
+                                log.debug("PlaystateMgr: compare_playqueues finished for music playqueue.id: %s. New playqueue.items len: %s, plex_ids: %s",
                                           playqueue.id, len(playqueue.items), current_plex_ids)
 
                         playqueue.old_kodi_pl = list(kodi_pl)
@@ -290,10 +290,10 @@ class PlaystateMgr(backgroundthread.KillableThread):
             elif not app.PLAYSTATE.item:
                 # Not a Plex item currently playing - try to recover
                 log.debug("PlaystateMgr: No app.PLAYSTATE.item set. Active players (from js.get_players()): %s. Attempting recovery.", players)
-                if players: 
-                    active_player_ids = js.get_player_ids() 
+                if players:
+                    active_player_ids = js.get_player_ids()
                     if active_player_ids:
-                        playerid_to_recover = active_player_ids[0] 
+                        playerid_to_recover = active_player_ids[0]
                         log.debug("PlaystateMgr: Attempting recovery for playerid: %s", playerid_to_recover)
                         try:
                             item_props = js.get_item(playerid_to_recover)
