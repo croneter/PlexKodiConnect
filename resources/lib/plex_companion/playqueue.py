@@ -145,7 +145,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
                 log.debug("compare_playqueues: Playqueue %s, adjusting indices from pos %s due to new item insertion.", playqueue.id if playqueue else "N/A", i)
                 for k_loop_var in range(i, len(index)): # Renamed j to k_loop_var to avoid clash
                     index[k_loop_var] += 1
-    
+
     # After iterating through new items, any remaining items in 'old' (tracked by 'index') are deletions.
     for i_loop_var in reversed(index): # Renamed i to i_loop_var
         if app.APP.stop_pkc:

@@ -74,7 +74,7 @@ class KodiMonitor(xbmc.Monitor):
         # This helper now takes current_kodi_id, current_kodi_type, current_path as input,
         # which are initially from _gather_initial_playback_info.
         # It will update them by calling self._json_item if necessary.
-        
+
         LOG.debug("_determine_initialization_need: Pre-check. PlayerID: %s, Pos: %s, PQ_Len: %s, KodiID: %s, KodiType: %s, Path: %s",
                   playerid, pos, len(playqueue.items), current_kodi_id, current_kodi_type, current_path)
 

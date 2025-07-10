@@ -257,7 +257,7 @@ class PlaystateMgr(backgroundthread.KillableThread):
                             if is_music_playqueue:
                                 log.debug("PlaystateMgr: Music playqueue change detected. Calling compare_playqueues for playqueue.id: %s. Old len: %s, New len: %s",
                                           playqueue.id, len(playqueue.old_kodi_pl) if playqueue.old_kodi_pl else "N/A", len(kodi_pl))
-                            
+
                             # compare old and new playqueue
                             compare_playqueues(playqueue, kodi_pl)
                             
