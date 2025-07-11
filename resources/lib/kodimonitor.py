@@ -145,12 +145,34 @@ class KodiMonitor(xbmc.Monitor):
                 return False, item_from_playqueue, current_kodi_id, current_kodi_type, current_path
 
     def _initialize_new_plex_item(self, playerid, playqueue, position, kodi_id, kodi_type, path, playlist_id):
+        """
+        Initialize a new Plex item using given parameters or by deriving from player info.
+
+        Args:
+            playerid: ID of the player.
+            playqueue: The current playqueue.
+            position: Position in the playqueue.
+            kodi_id: Kodi item ID.
+            kodi_type: Kodi item type.
+            path: File path of the item.
+            playlist_id: ID of the playlist.
+
+        Returns:
+            A tuple containing:
+            - item: Initialized PlaylistItem or None if failed.
+            - container_key: Container key for the item.
+            - plex_id: Plex ID of the item.
+            - plex_type: Plex type of the item.
+        """
         if not kodi_id or not kodi_type or not path:
+            # Attempt to derive missing Kodi item information using JSON-RPC
             kodi_id, kodi_type, path = self._json_item(playerid)
 
+        # Try to fetch Plex IDs using derived or provided Kodi data
         plex_id, plex_type = self._get_ids(kodi_id, kodi_type, path)
 
         if not plex_id:
+            # Attempt to retrieve Plex IDs from the playqueue if direct lookup failed
             try:
                 item_at_pos = playqueue.items[position]
                 if item_at_pos and hasattr(item_at_pos, 'plex_id') and item_at_pos.plex_id:
@@ -160,6 +182,7 @@ class KodiMonitor(xbmc.Monitor):
                 pass
 
         if plex_id is None:
+            # Initialize a new transient PlaylistItem if Plex ID couldn't be determined
             item = PlaylistItem()
             _type = kodi_type if kodi_type else v.KODI_TYPE_VIDEO
             item.plex_type = _type
@@ -175,12 +198,14 @@ class KodiMonitor(xbmc.Monitor):
             return item, None, None, item.plex_type
 
         try:
+            # Initialize Plex playqueue with the identified Plex ID
             item = PL.init_plex_playqueue(playqueue, plex_id=plex_id)
             if item and path:
                 item.file = path
         except exceptions.PlaylistError:
             return None, None, plex_id, plex_type
 
+        # Determine the appropriate container key
         container_key = f'/playQueues/{playqueue.id}' if playlist_id != -1 else f'/library/metadata/{plex_id}'
         return item, container_key, plex_id, plex_type
 

@@ -407,22 +407,32 @@ def get_episodes(params):
 
 
 def get_item(playerid):
-            # Docstring remains as is
-            try:
-                # Request only 'title' and 'file' properties
-                response = JsonRPC('Player.GetItem').execute({
-                    'playerid': playerid,
-                    'properties': ['title', 'file']
-                })
-                # Safer access to dictionary keys
-                if response and 'result' in response and isinstance(response['result'], dict) and 'item' in response['result']:
-                    return response['result']['item']
-                else:
-                    log.debug("get_item: Unexpected response structure for playerid %s: %s", playerid, response)
-                    return None
-            except Exception as e:
-                log.debug("get_item: Failed to get item for playerid %s - %s: %s", playerid, type(e).__name__, e)
-                return None
+    """
+    UNRELIABLE on playback startup! (as other JSON and Python Kodi functions)
+    Returns the following for the currently playing item:
+    {
+        u'title': u'Okja',
+        u'type': u'movie',
+        u'id': 258,
+        u'file': u'smb://...movie.mkv',
+        u'label': u'Okja'
+    }
+    """
+    try:
+        # Request only 'title' and 'file' properties
+        response = JsonRPC('Player.GetItem').execute({
+            'playerid': playerid,
+            'properties': ['title', 'file']
+        })
+        # Safer access to dictionary keys
+        if response and 'result' in response and isinstance(response['result'], dict) and 'item' in response['result']:
+            return response['result']['item']
+        else:
+            log.debug("get_item: Unexpected response structure for playerid %s: %s", playerid, response)
+            return None
+    except Exception as e:
+        log.debug("get_item: Failed to get item for playerid %s - %s: %s", playerid, type(e).__name__, e)
+        return None
 
 
 def get_current_audio_stream_index(playerid):
