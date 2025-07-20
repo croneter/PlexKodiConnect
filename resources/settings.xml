@@ -1,204 +1,1512 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-	<category label="30014"><!-- Connection -->
-		<setting id="plex_servername" label="39067" type="text" default="" enable="false" /><!-- Your current PMS server: -->
-		<setting id="ipaddress" label="39069" type="text" default="" enable="false" /><!-- Current address: -->
-		<setting id="port" label="39070" type="text" default="" enable="false" /><!-- Current port: -->
-        <setting id="pms_websocket_status" label="39072" type="text" default="" enable="false" /><!-- Background sync connection: -->
-		<setting type="sep" text=""/>
-        <setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39050][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=chooseServer)" option="close" /><!-- Choose Plex Server from a list -->
-		<setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39068][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=enterPMS)" option="close" /><!-- Manually enter Plex Media Server IP -->
-		<setting type="sep" text=""/>
-        <setting id="plex_serverowned" label="30031" type="bool" default="true" /><!-- I own this PMS -->
-		<setting id="https" label="30243" type="bool" default="false" />
-        <setting id="sslcert" subsetting="true" label="30501" type="file" default="None" visible="eq(-1,true)" />
-		<setting id="sslverify" label="30500" type="bool" default="false" visible="String.StartsWith(System.BuildVersion,17.)" /><!-- Verify SSL Certificate (more secure) - Only visible for Kodi 17 Krypton eq(-1,true) +  -->
-		<setting id="show_pms_offline" label="30025" type="bool" default="true" /><!-- Display message if PMS goes offline -->
-
-		<setting type="sep" text=""/>
-
-		<setting id="enforceUserLogin" label="30536" type="bool" default="false" />
-		<setting id="accessToken" type="text" visible="false" default="" />
-	</category>
-
-	<category label="Plex">
-		<setting type="lsep" label="plex.tv"/>
-		<setting id="plex_status" label="39071" type="text" default="Not logged in to plex.tv" enable="false" /><!-- Current plex.tv status: -->
-		<setting id="plexLogin" label="39228" type="text" default="" enable="false" /><!-- Plex admin user -->
-        <setting id="username" label="39230" type="text" default="" enable="false" /><!-- Logged in Plex home user -->
-		<setting id="myplexlogin" label="39025" type="bool" default="true" /> <!-- Log into plex.tv on startup -->
-        <setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39231][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=switchuser)" option="close" /><!-- Change logged in Plex home user -->
-		<setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39209][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=togglePlexTV)" option="close" /><!-- Toggle plex.tv login (sign in or sign out) -->
-		<setting id="plexToken" label="plexToken" type="text" default="" visible="false" />
-        <setting type="sep" text=""/>
-		<setting type="lsep" label="39008" />
-		<setting id="plexCompanion" label="39004" type="bool" default="true" />
-		<setting id="deviceName" label="30016" type="text" visible="eq(-1,true)" default="" subsetting="true" />
-		<setting id="companionPort" label="39005" type="number" default="3005" option="int" visible="eq(-2,true)" subsetting="true" />
-		<setting id="companionUpdatePort" label="39078" type="number" default="32412" option="int" visible="eq(-3,true)" subsetting="true" />
-		<setting type="sep" text=""/>
-        <setting type="lsep" label="39700" />
-		<setting id="enable_alexa" label="39701" type="bool" default="true"/>
-        <setting id="alexa_websocket_status" label="39089" type="text" default="" enable="false" /><!-- Alexa connection status: -->
-        <!-- Different settings that are not visible - to avoid warnings in the log -->
-		<setting id="plex_restricteduser" type="bool" default="false" visible="false"/>
-		<setting id="plex_allows_mediaDeletion" type="bool" default="true" visible="false"/>
-		<setting id="companion_show_gdm_port_warning" type="bool" default="true" visible="false"/>
-        <setting id="InstallQuestionsAnswered" type="bool" default="false" visible="false"/>
-        <setting id="SyncInstallRunDone" type="bool" default="false" visible="false"/>
-        <setting id="last_migrated_PKC_version" type="text" default="" visible="false"/>
-        <setting id="plexAvatar" type="text" default="" visible="false"/>
-        <setting id="plex_client_Id" type="text" default="" visible="false"/>
-        <setting id="plex_machineIdentifier" type="text" default="" visible="false"/>
-        <setting id="dbCreatedWithVersion" type="text" default="" visible="false"/>
-        <setting id="plexid" type="text" default="" visible="false"/>
-        <setting id="userid" type="text" default="" visible="false"/>
-        <setting id="sections_asked_for_machine_identifier" type="text" default="" visible="false"/>
-	</category>
-
-	<category label="30506"><!-- Sync Options -->
-        <setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 30524][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=select-libraries)" option="close" help="Choose which Plex library you want to sync"/><!-- Select Plex libraries to sync -->
-		<setting type="lsep" label="30537" /><!-- Restart if you make changes -->
-		<setting type="sep" />
-        <setting id="fullSyncInterval" type="number" label="39053" default="60" option="int" />
-        <setting id="dbSyncScreensaver" type="bool" label="39062" default="false" /><!--Sync when screensaver is deactivated-->
-        <setting id="dbSyncIndicator" label="30507" type="bool" default="true" /><!-- show syncing progress -->
-        <setting id="playstate_sync_indicator" label="30523" type="bool" default="false" visible="eq(-1,true)" subsetting="true"/><!-- Also show sync progress for playstate and user data -->
-        <setting id="check_media_file_existence" type="bool" label="39075" default="true" /><!--Verify access to media files while synching -->
-        <setting id="syncThreadNumber" type="slider" label="39003" default="10" option="int" range="1,1,30"/><!-- Number of simultaneous download threads -->
-        <setting id="limitindex" type="slider" label="30515" default="200" option="int" range="50,50,1000"/><!-- Maximum items to request from the server at once -->
-        <setting type="lsep" label="$LOCALIZE[136]" /><!-- Playlists -->
-        <setting type="sep" />
-        <setting id="enablePlaylistSync" type="bool" label="30020" default="true" visible="true"/><!-- Sync Plex playlists -->
-        <setting id="syncSpecificKodiPlaylists" type="bool" label="30023" default="false" visible="eq(-1,true)" /><!-- Only sync specific Kodi playlists to Plex -->
-        <setting id="syncSpecificKodiPlaylistsPrefix" type="text" label="30027" default="sync_" visible="eq(-1,true) + eq(-2,true)"/><!-- Prefix in Kodi playlist name to trigger sync -->
-        <setting id="syncSpecificPlexPlaylists" type="bool" label="30021" default="false" visible="eq(-3,true)"/><!-- Only sync specific Plex playlists to Kodi -->
-        <setting id="syncSpecificPlexPlaylistsPrefix" type="text" label="30026" default="sync_" visible="eq(-1,true) + eq(-4,true)" /><!-- Prefix in Plex playlist name to trigger sync -->
-        <setting type="sep" />
-        <setting type="lsep" label="39052" /><!-- Background Sync -->
-        <setting id="enableBackgroundSync" type="bool" label="39026" default="true" visible="true"/>
-        <setting id="backgroundsync_saftyMargin" type="slider" label="39051" default="5" option="int" range="5,1,300" visible="eq(-1,true)" subsetting="true" />
-        <setting id="delayBackgroundSyncWhilePlaying" type="bool" label="39027" default="true" visible="eq(-2,true)"/>
-        <setting type="sep" />
-        <setting type="lsep" label="30538" /><!-- Manual complete reset of Kodi database necessary, see "Advanced" -->
-        <setting id="showExtrasInsteadOfTrailer" type="bool" label="30514" default="false" /><!-- Show all Plex extras instead of immediately playing trailers -->
-        <setting id="indicate_media_versions" type="bool" label="39719" default="false" /><!-- Replace user ratings with number of versions -->
-        <setting id="enableMusic" type="bool" label="30509" default="true" />
-        <setting id="useDirectPaths" type="enum" label="30511" values="Addon (Default)|Direct Paths" default="0" visible="true"/> <!-- Playback mode -->
-        <setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 30517][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=passwords)" option="close" /><!-- Set network credentials for Direct Paths and direct play -->
-
-        <setting id="streamMusic" type="bool" label="30510" default="false" visible="false" subsetting="true"/> <!-- Direct stream Music library -->
-        <setting id="themoviedbAPIKey" type="text" default="19c90103adb9e98f2172c6a6a3d85dc4" visible="false"/>
-        <setting id="FanArtTVAPIKey" type="text" default="639191cb0774661597f28a47e7e2bad5" visible="false"/>
-        <setting id="syncEmptyShows" type="bool" label="30508" default="false" visible="false"/>
-        <setting id="kodi_db_has_been_wiped_clean" type="bool" label="PKC needs to completely clean the Kodi DB at least once, then reboot, to avoid Kodi error messages, e.g. OperationalError" default="false" visible="false" />
-	</category>
-
-	<category label="39057"><!-- Customize Paths -->
-		<setting type="lsep" label="39056" /><!-- Used by sync and when attempting Direct Paths. Restart Kodi on changes! -->
-		<setting id="replaceSMB" type="bool" label="39034" default="true" /> <!-- replace all Plex paths with SMB paths -->
-		<setting id="remapSMB" type="bool" label="39035" default="false" /> <!-- replace Plex paths /volume1/media or \\myserver\media with a custom SMB path smb://NAS/mystuff -->
-		<setting id="remapSMBmovieOrg" type="text" label="39037" default="" visible="eq(-1,true)" subsetting="true" /> <!-- Original Plex MOVIE path to replace -->
-		<setting id="remapSMBmovieNew" type="text" label="39038" default="smb://" visible="eq(-2,true)" subsetting="true" /> <!-- Replace Plex MOVIE with: -->
-		<setting id="remapSMBtvOrg" type="text" label="39039" default="" visible="eq(-3,true)" subsetting="true" /> <!-- Original Plex TV SHOWS path to replace: -->
-		<setting id="remapSMBtvNew" type="text" label="39040" default="smb://" visible="eq(-4,true)" subsetting="true" /> <!-- Replace Plex TV SHOWS with: -->
-		<setting id="remapSMBmusicOrg" type="text" label="39041" default="" visible="eq(-5,true)" subsetting="true" /> <!-- Original Plex MUSIC path to replace: -->
-		<setting id="remapSMBmusicNew" type="text" label="39042" default="smb://" visible="eq(-6,true)" subsetting="true" /> <!-- Replace Plex MUSIC with: -->
-		<setting id="remapSMBphotoOrg" type="text" label="39045" default="" visible="eq(-7,true)" subsetting="true" /> <!-- Original Plex MUSIC path to replace: -->
-		<setting id="remapSMBphotoNew" type="text" label="39046" default="smb://" visible="eq(-8,true)" subsetting="true" /> <!-- Replace Plex MUSIC with: -->
-        <setting id="escapePath" type="bool" label="39036" default="false" /> <!-- Escape special characters in path (e.g. space to %20) -->
-        <setting id="escapePathSafeChars" type="text" label="39090" default="%/:=&amp;?~#+!$,;'@()*[]" visible="eq(-1,true)" subsetting="true"/> <!-- Safe characters for http(s), dav(s) and (s)ftp urls -->
-	</category>
-
-	<category label="30516"><!-- Playback -->
-		<setting id="enableCinema" type="bool" label="30518" default="false" />
-		<setting id="askCinema" type="bool" label="30519" default="false" visible="eq(-1,true)" subsetting="true" />
-        <setting id="trailerNumber" type="slider" label="39000" default="3" visible="eq(-2,true)" range="1,1,15" option="int" />
-        <setting id="enableSkipIntro" type="bool" label="30525" default="true" /><!-- Enable skipping of intros -->
-        <setting id="enableAutoSkipIntro" type="bool" label="39720" default="false" visible="eq(-1,true)" subsetting="true" /><!-- Enable auto skipping of intros -->
-        <setting id="enableSkipCredits" type="bool" label="30526" default="true" /><!-- Enable skipping of credits -->
-        <setting id="enableAutoSkipCredits" type="bool" label="39721" default="false" visible="eq(-1,true)" subsetting="true" /><!-- Enable auto skipping of credits -->
-        <setting id="enableSkipCommercials" type="bool" label="30530" default="true" /><!-- Enable skipping of commercials -->
-        <setting id="enableAutoSkipCommercials" type="bool" label="39722" default="false" visible="eq(-1,true)" subsetting="true" /><!-- Enable auto skipping of commercials -->
-        <setting id="enableAutoHideSkip" type="bool" label="39723" default="true" /><!-- Enable hiding skip button after some time -->
-        <setting id="enableAutoHideSkipTime" type="slider" label="39724" option="int" range="1,1,60" default="10" visible="eq(-1,true)" subsetting="true" /><!-- Seconds til the skip button should be hidden-->
-        <setting id="firstVideoStream" type="bool" label="30546" default="false" /><!-- Pick the first video if several versions are present -->
-        <setting id="audioStreamPick" type="enum" label="30547" values="Plex|Kodi" default="0" /><!-- Who picks the audio stream on playback start? -->
-        <setting id="subtitleStreamPick" type="enum" label="30548" values="Plex|Kodi" default="0" /><!-- Who picks subtitles on playback start? -->
-	    <setting id="ignoreSpecialsNextEpisodes" type="bool" label="30527" default="false" />
-        <setting id="resumeJumpBack" type="slider" label="30521" default="10" range="0,1,120" option="int" visible="false"/>
-        <setting type="sep" />
-        <setting id="playType" type="enum" label="30002" values="Try Direct Path|Direct Play|Direct Stream|Force Transcode" default="0" />
-        <setting id="transcoderVideoQualities" type="enum" label="30160" values="480p, 1.5Mbps|720p, 2Mbps|720p, 3Mbps|720p, 4Mbps|1080p, 8Mbps|1080p, 10Mbps|1080p, 12Mbps|1080p, 20Mbps|1080p, 40Mbps|4K, 35Mbps|4K, 50Mbps" default="10" /><!-- Video Quality if Transcoding necessary -->
-        <setting id="auto_adjust_transcode_quality" label="30161" type="bool" default="false" /><!-- Auto-adjust transcoding quality (deactivate for Chromecast) -->
-        <setting id="maxVideoQualities" type="enum" label="30143" values="320kbps|720kbps|1.5Mbps|2Mbps|3Mbps|4Mbps|8Mbps|10Mbps|12Mbps|20Mbps|40Mbps|deactivated" default="11" /><!-- Always transcode if video bitrate is above -->
-        <setting id="transcodeH265" type="enum" label="30522" default="0" values="Disabled (default)|480p (and higher)|720p (and higher)|1080p (and higher)|4K" /><!-- Force transcode h265/HEVC -->
-        <setting id="transcodeAV1" type="enum" label="39725" default="0" values="Disabled (default)|480p (and higher)|720p (and higher)|1080p (and higher)|4K" /><!-- Force transcode AV1 -->
-        <setting id="transcodeHi10P" type="bool" label="39063" default="false"/>
-        <setting id="audioBoost" type="slider" label="39001" default="0" range="0,10,100" option="int"/>
-        <setting id="subtitleSize" label="39002" type="slider" option="int" range="0,30,300" default="100" />
-        <setting id="force_transcode_pix" type="bool" label="30545" default="false" />
-        <setting id="bestQuality" type="bool" label="30541" default="false" /><!-- Transcoding: Auto-pick audio and subtitle stream using Plex defaults -->
-        <setting id="bestTrailer" type="bool" label="30542" default="true" />
-        <setting type="sep" />
-        <setting id="offerDelete" type="bool" label="30114" default="false" visible="false"/>
-        <setting id="deleteTV" type="bool" label="30115" visible="eq(-1,true)" default="false" subsetting="true" />
-        <setting id="deleteMovies" type="bool" label="30116" visible="eq(-2,true)" default="false" subsetting="true" />
-        <setting id="skipContextMenu" type="bool" label="30520" default="false"/>
-        <setting id="kodi_video_cache" type="number" visible="false" default="20971520" />
-        <setting id="warned_setting_videoplayer.autoplaynextitem" type="bool" visible="false" default="false" />
-        <setting id="failedCount" type="number" visible="false" default="0" />
-	</category>
-
-	<category label="30544"><!-- artwork -->
-        <setting id="usePlexArtwork" label="30502"  type="bool" default="true" /> <!-- Sync Plex artwork from the PMS -->
-		<setting id="enableTextureCache" label="30512"  type="bool" default="true" visible="eq(-1,true)"/> <!-- Cache all artwork for a smooth Kodi experience -->
-        <setting id="FanartTV" label="30539" type="bool" default="false" visible="eq(-2,true)"/><!-- Download additional art from FanArtTV -->
-        <setting id="PreferKodiCollectionArt" label="30543" type="bool" default="true" visible="eq(-1,true) + eq(-3,true)" subsetting="true" /><!-- Prefer Kodi artwork for collections -->
-        <setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39222][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=fanart)" option="close" visible="eq(-2,true) + eq(-4,true)" subsetting="true" /> <!-- Look for missing fanart on FanartTV now -->
-        <setting id="imageSyncNotifications" label="30008" type="bool" default="true" visible="eq(-5,true)"/><!-- Enable notifications for image caching -->
-        <setting id="imageSyncDuringPlayback" label="30009" type="bool" default="true" visible="eq(-6,true)"/><!-- Enable image caching during Kodi playback (restart Kodi!) -->
-		<setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39020][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=texturecache)" option="close" visible="eq(-7,true)"/> <!-- Cache all images to Kodi texture cache now -->
-        <setting type="lsep" label="$LOCALIZE[126]" visible="eq(-8,true)"/><!-- Status -->
-        <setting id="plex_status_fanarttv_lookup" label="30019" type="text" default="" enable="false" visible="eq(-9,true)"/><!-- FanartTV lookup completed -->
-        <setting id="plex_status_image_caching" label="30028" type="text" default="" enable="false" visible="eq(-10,true)"/><!-- Image caching completed -->
-	</category>
-	<!--
-	<category label="30235" visible="false">
-	    <setting id="enableCoverArt" type="bool" label="30157" default="true" visible="false"/>
-		<setting id="additionalUsers" type="text" label="30528" default="" visible="false"/>
-		<setting type="lsep" label="30534" visible="false" />
-        <setting id="newContent" type="bool" label="30531" default="false" visible="false" />
-	    <setting id="newvideotime" type="number" label="30532" visible="false" default="5" option="int" subsetting="true" />
-        <setting id="newmusictime" type="number" label="30533" visible="false" default="2" option="int" subsetting="true" />
-	</category>
-	-->
-
-	<category label="39073"><!-- Appearance Tweaks -->
-        <setting id="plex_context_show_extras" type="bool" label="39058" default="true" /><!-- Show 'Extras' in Kodi context menu (reboot Kodi) -->
-        <setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39085][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=refreshplaylist)" option="close" /><!-- Reload Kodi node files to apply all the settings below -->
-        <setting id="widgetLimit" type="slider" label="39077" default="30" range="10,10,100" option="int" /><!-- Maximum number of videos to show in widgets -->
-        <setting type="lsep" />
-		<setting id="fetch_pms_item_number" label="39077" type="number" default="50" option="int" visible="false" />
-        <setting type="lsep" label="39074" /><!-- TV Shows -->
-        <setting id="OnDeckTvAppendShow" type="bool" label="39047" default="false" /><!--On Deck view: Append show title to episode-->
-        <setting id="OnDeckTvAppendSeason" type="bool" label="39048" default="false" /><!--On Deck view: Append season number to episode-->
-        <setting id="TVShowWatched" type="bool" label="39064" default="true" /><!--Recently Added: Also show already watched episodes-->
-        <setting id="RecentTvAppendShow" type="bool" label="39059" default="false" /><!--Recently added: Append show title to episode-->
-        <setting id="RecentTvAppendSeason" type="bool" label="39060" default="false" /><!--Recently Added: Append season- and episode-number SxxExx-->
-        <setting type="sep" />
-        <setting type="lsep" label="30302" /><!-- Movies -->
-        <setting id="MovieShowWatched" type="bool" label="39066" default="true" /><!--Recently Added: Also show already watched episodes-->
-        <setting type="sep" />
-        <setting type="lsep" label="30022" /><!-- Advanced -->
-	</category>
-
-	<category label="30022"><!-- Advanced -->
-		<setting id="startupDelay" type="number" label="30529" default="0" option="int" />
-		<setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 39018][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=repair)" option="close" /> <!-- Repair the Kodi database (force update all content) -->
-		<setting label="[COLOR yellow]$ADDON[plugin.video.plexkodiconnect 30535][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect?mode=deviceid)" /><!-- Generate a new unique Plex device Id (e.g. to clone Kodi) -->
-		<setting type="sep" />
-        <setting type="lsep" label="39049" /><!-- Nothing works? Try a full reset -->
-		<setting label="[COLOR red]$ADDON[plugin.video.plexkodiconnect 39019][/COLOR]" type="action" action="RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=reset)" option="close" /> <!-- Reset the Kodi database and optionally reset PlexKodiConnect -->
-	</category>
+<?xml version="1.0" ?>
+<settings version="1">
+    <section id="plugin.video.plexkodiconnect">
+        <category id="connection" label="30014" help=""> <!-- Connection -->
+            <group id="1">
+                <setting id="plex_servername" type="string" label="39067" help=""> <!-- Your current Plex Media Server: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39067</heading> <!-- Your current Plex Media Server: -->
+                    </control>
+                </setting>
+                <setting id="ipaddress" type="string" label="39069" help=""> <!-- Current address: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39069</heading> <!-- Current address: -->
+                    </control>
+                </setting>
+                <setting id="port" type="string" label="39070" help=""> <!-- Current port: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39070</heading> <!-- Current port: -->
+                    </control>
+                </setting>
+                <setting id="pms_websocket_status" type="string" label="39072" help=""> <!-- Background sync connection: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39072</heading> <!-- Background sync connection: -->
+                    </control>
+                </setting>
+            </group>
+            <group id="2">
+                <setting id="rvpegvatgxcrpgyrkomurhvxrtxjzghj" type="action" label="39050" help=""> <!-- Choose Plex Server from a list -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=chooseServer)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="qbqqgiuygvtupktypjdymdqtmhyxvhud" type="action" label="39068" help=""> <!-- Manually enter Plex Media Server address -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=enterPMS)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+            <group id="3">
+                <setting id="plex_serverowned" type="boolean" label="30031" help=""> <!-- I own this Plex Media Server -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="https" type="boolean" label="30243" help=""> <!-- Enable HTTPS -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="sslcert" type="path" label="30501" help="" parent="https"> <!-- Client SSL certificate -->
+                    <level>0</level>
+                    <default>None</default>
+                    <constraints>
+                        <writable>false</writable>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="https">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="button" format="file">
+                        <heading>30501</heading> <!-- Client SSL certificate -->
+                    </control>
+                </setting>
+                <setting id="sslverify" type="boolean" label="30500" help=""> <!-- Verify Host SSL Certificate (more secure) -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">String.StartsWith(System.BuildVersion,17.)</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="show_pms_offline" type="boolean" label="30025" help=""> <!-- Display message if PMS goes offline -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+            </group>
+            <group id="4">
+                <setting id="enforceUserLogin" type="boolean" label="30536" help=""> <!-- Users must log in every time Kodi restarts -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="accessToken" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="plex" label="29998" help=""> <!-- Plex -->
+            <group id="1" label="plex.tv">
+                <setting id="plex_status" type="string" label="39071" help=""> <!-- Current plex.tv status: -->
+                    <level>0</level>
+                    <default>Not logged in to plex.tv</default>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39071</heading> <!-- Current plex.tv status: -->
+                    </control>
+                </setting>
+                <setting id="plexLogin" type="string" label="39228" help=""> <!-- Plex admin user -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39228</heading> <!-- Plex admin user -->
+                    </control>
+                </setting>
+                <setting id="username" type="string" label="39230" help=""> <!-- Logged in Plex home user -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39230</heading> <!-- Logged in Plex home user -->
+                    </control>
+                </setting>
+                <setting id="myplexlogin" type="boolean" label="39025" help=""> <!-- Automatically log into plex.tv on startup -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="cxjjfvolbtprgoqfnmeghgibawzuhcrx" type="action" label="39231" help=""> <!-- Change logged in Plex home user -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=switchuser)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="lnasfmhwqtvdgjxvseywkooiromwavoi" type="action" label="39209" help=""> <!-- Toggle plex.tv login (sign in or sign out) -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=togglePlexTV)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="plexToken" type="string" label="plexToken" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>plexToken</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" />
+            <group id="3" label="39008"> <!-- Plex Companion: Allows flinging media to Kodi through Plex -->
+                <setting id="plexCompanion" type="boolean" label="39004" help=""> <!-- Enable Plex Companion (restart Kodi!) -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="deviceName" type="string" label="30016" help="" parent="plexCompanion"> <!-- Device Name -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="plexCompanion">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30016</heading> <!-- Device Name -->
+                    </control>
+                </setting>
+                <setting id="companionPort" type="integer" label="39005" help="" parent="plexCompanion"> <!-- Plex Companion Port (change only if needed) -->
+                    <level>0</level>
+                    <default>3005</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="plexCompanion">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="integer">
+                        <heading>39005</heading> <!-- Plex Companion Port (change only if needed) -->
+                    </control>
+                </setting>
+                <setting id="companionUpdatePort" type="integer" label="39078" help="" parent="plexCompanion"> <!-- Plex Companion Update Port (change only if needed) -->
+                    <level>0</level>
+                    <default>32412</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="plexCompanion">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="integer">
+                        <heading>39078</heading> <!-- Plex Companion Update Port (change only if needed) -->
+                    </control>
+                </setting>
+            </group>
+            <group id="4" />
+            <group id="5" label="39700"> <!-- Amazon Alexa (Voice Recognition) -->
+                <setting id="enable_alexa" type="boolean" label="39701" help=""> <!-- Activate Alexa -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="alexa_websocket_status" type="string" label="39089" help=""> <!-- Alexa connection status: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39089</heading> <!-- Alexa connection status: -->
+                    </control>
+                </setting>
+                <setting id="plex_restricteduser" type="boolean" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="plex_allows_mediaDeletion" type="boolean" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="companion_show_gdm_port_warning" type="boolean" help="">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="InstallQuestionsAnswered" type="boolean" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="SyncInstallRunDone" type="boolean" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="last_migrated_PKC_version" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="plexAvatar" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="plex_client_Id" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="plex_machineIdentifier" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="dbCreatedWithVersion" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="plexid" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="userid" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="sections_asked_for_machine_identifier" type="string" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="sync options" label="30506" help=""> <!-- Sync Options -->
+            <group id="1">
+                <setting id="uoovktyfpdsjvxlroxishmichtivzcxs" type="action" label="30524" help=""> <!-- Select Plex libraries to sync -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=select-libraries)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="30537" /> <!-- RESTART KODI IF YOU MAKE ANY CHANGES -->
+            <group id="3">
+                <setting id="fullSyncInterval" type="integer" label="39053" help=""> <!-- Do a full library sync every x minutes -->
+                    <level>0</level>
+                    <default>60</default>
+                    <control type="edit" format="integer">
+                        <heading>39053</heading> <!-- Do a full library sync every x minutes -->
+                    </control>
+                </setting>
+                <setting id="dbSyncScreensaver" type="boolean" label="39062" help=""> <!-- Sync when screensaver is deactivated -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="dbSyncIndicator" type="boolean" label="30507" help=""> <!-- Show syncing progress -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="playstate_sync_indicator" type="boolean" label="30523" help="" parent="dbSyncIndicator"> <!-- Also show sync progress for playstate and user data -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="dbSyncIndicator">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="check_media_file_existence" type="boolean" label="39075" help=""> <!-- Verify access to media files while synching -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="syncThreadNumber" type="integer" label="39003" help=""> <!-- Number of simultaneous download threads -->
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>30</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="limitindex" type="integer" label="30515" help=""> <!-- Maximum items to request from the server at once -->
+                    <level>0</level>
+                    <default>200</default>
+                    <constraints>
+                        <minimum>50</minimum>
+                        <step>50</step>
+                        <maximum>1000</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="4" label="136" />
+            <group id="5">
+                <setting id="enablePlaylistSync" type="boolean" label="30020" help=""> <!-- Sync Plex playlists (reboot Kodi!) -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="syncSpecificKodiPlaylists" type="boolean" label="30023" help=""> <!-- Only sync specific Kodi playlists to Plex -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enablePlaylistSync">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="syncSpecificKodiPlaylistsPrefix" type="string" label="30027" help=""> <!-- Prefix in Kodi playlist name to trigger sync -->
+                    <level>0</level>
+                    <default>sync_</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="syncSpecificKodiPlaylists">true</condition>
+                                <condition operator="is" setting="enablePlaylistSync">true</condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30027</heading> <!-- Prefix in Kodi playlist name to trigger sync -->
+                    </control>
+                </setting>
+                <setting id="syncSpecificPlexPlaylists" type="boolean" label="30021" help=""> <!-- Only sync specific Plex playlists to Kodi -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enablePlaylistSync">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="syncSpecificPlexPlaylistsPrefix" type="string" label="30026" help=""> <!-- Prefix in Plex playlist name to trigger sync -->
+                    <level>0</level>
+                    <default>sync_</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="syncSpecificPlexPlaylists">true</condition>
+                                <condition operator="is" setting="enablePlaylistSync">true</condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30026</heading> <!-- Prefix in Plex playlist name to trigger sync -->
+                    </control>
+                </setting>
+            </group>
+            <group id="6" />
+            <group id="7" label="39052"> <!-- Background Sync -->
+                <setting id="enableBackgroundSync" type="boolean" label="39026" help=""> <!-- Enable constant background sync -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="backgroundsync_saftyMargin" type="integer" label="39051" help="" parent="enableBackgroundSync"> <!-- Wait before sync new/changed PMS item [s] -->
+                    <level>0</level>
+                    <default>5</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>1</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableBackgroundSync">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="delayBackgroundSyncWhilePlaying" type="boolean" label="39027" help=""> <!-- Delay background sync while media is playing -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableBackgroundSync">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+            </group>
+            <group id="8" />
+            <group id="9" label="30538">
+                <setting id="showExtrasInsteadOfTrailer" type="boolean" label="30514" help=""> <!-- Show all Plex extras instead of immediately playing trailers -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="indicate_media_versions" type="boolean" label="39719" help=""> <!-- Replace user ratings with number of media versions -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableMusic" type="boolean" label="30509" help=""> <!-- Enable Music Library -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="useDirectPaths" type="integer" label="30511" help=""> <!-- Playback Mode -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="Addon (Default)">0</option>
+                            <option label="Direct Paths">1</option>
+                        </options>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="tdqkphkiptffagekqkavgogvmirtluqj" type="action" label="30517" help=""> <!-- Set network credentials for Direct Paths and direct play -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=passwords)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="streamMusic" type="boolean" label="30510" help="" parent=""> <!-- Direct stream music library -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="themoviedbAPIKey" type="string" help="">
+                    <level>0</level>
+                    <default>19c90103adb9e98f2172c6a6a3d85dc4</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="FanArtTVAPIKey" type="string" help="">
+                    <level>0</level>
+                    <default>639191cb0774661597f28a47e7e2bad5</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="syncEmptyShows" type="boolean" label="30508" help=""> <!-- Sync empty TV Shows -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="kodi_db_has_been_wiped_clean" type="boolean" label="PKC needs to completely clean the Kodi DB at least once, then reboot, to avoid Kodi error messages, e.g. OperationalError" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+            </group>
+        </category>
+        <category id="customize paths" label="39057" help=""> <!-- Customize Paths -->
+            <group id="1" label="39056"> <!-- Used by sync and when attempting Direct Paths. Restart Kodi on changes! -->
+                <setting id="replaceSMB" type="boolean" label="39034" help=""> <!-- Replace Plex UNC paths \\\\myNas with smb://myNas -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="remapSMB" type="boolean" label="39035" help=""> <!-- Replace Plex paths /volume1/media or \\\\myserver\\media with custom SMB paths smb://NAS/mystuff -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="remapSMBmovieOrg" type="string" label="39037" help="" parent="remapSMB"> <!-- Original Plex MOVIE path to replace: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39037</heading> <!-- Original Plex MOVIE path to replace: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBmovieNew" type="string" label="39038" help="" parent="remapSMB"> <!-- Replace Plex MOVIE with: -->
+                    <level>0</level>
+                    <default>smb://</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39038</heading> <!-- Replace Plex MOVIE with: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBtvOrg" type="string" label="39039" help="" parent="remapSMB"> <!-- Original Plex TV SHOWS path to replace: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39039</heading> <!-- Original Plex TV SHOWS path to replace: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBtvNew" type="string" label="39040" help="" parent="remapSMB"> <!-- Replace Plex TV SHOWS with: -->
+                    <level>0</level>
+                    <default>smb://</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39040</heading> <!-- Replace Plex TV SHOWS with: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBmusicOrg" type="string" label="39041" help="" parent="remapSMB"> <!-- Original Plex MUSIC path to replace: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39041</heading> <!-- Original Plex MUSIC path to replace: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBmusicNew" type="string" label="39042" help="" parent="remapSMB"> <!-- Replace Plex MUSIC with: -->
+                    <level>0</level>
+                    <default>smb://</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39042</heading> <!-- Replace Plex MUSIC with: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBphotoOrg" type="string" label="39045" help="" parent="remapSMB"> <!-- Original Plex PHOTO path to replace: -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39045</heading> <!-- Original Plex PHOTO path to replace: -->
+                    </control>
+                </setting>
+                <setting id="remapSMBphotoNew" type="string" label="39046" help="" parent="remapSMB"> <!-- Replace Plex PHOTO with: -->
+                    <level>0</level>
+                    <default>smb://</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="remapSMB">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39046</heading> <!-- Replace Plex PHOTO with: -->
+                    </control>
+                </setting>
+                <setting id="escapePath" type="boolean" label="39036" help=""> <!-- Escape special characters in path (e.g. space to %20) -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="escapePathSafeChars" type="string" label="39090" help="" parent="escapePath"> <!-- Safe characters for http(s), dav(s) and (s)ftp urls -->
+                    <level>0</level>
+                    <default>%/:=&amp;?~#+!$,;'@()*[]</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="escapePath">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39090</heading> <!-- Safe characters for http(s), dav(s) and (s)ftp urls -->
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="playback" label="30516" help=""> <!-- Playback -->
+            <group id="1">
+                <setting id="enableCinema" type="boolean" label="30518" help=""> <!-- Enable Plex Trailers (Plexpass is needed) -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="askCinema" type="boolean" label="30519" help="" parent="enableCinema"> <!-- Ask to play trailers -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableCinema">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="trailerNumber" type="integer" label="39000" help=""> <!-- - Number of trailers to play before a movie -->
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>15</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableCinema">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="enableSkipIntro" type="boolean" label="30525" help=""> <!-- Skip intro -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableAutoSkipIntro" type="boolean" label="39720" help="" parent="enableSkipIntro"> <!-- Auto skip intro -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableSkipIntro">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableSkipCredits" type="boolean" label="30526" help=""> <!-- Skip credits -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableAutoSkipCredits" type="boolean" label="39721" help="" parent="enableSkipCredits"> <!-- Auto skip credits -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableSkipCredits">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableSkipCommercials" type="boolean" label="30530" help=""> <!-- Skip commercial -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableAutoSkipCommercials" type="boolean" label="39722" help="" parent="enableSkipCommercials"> <!-- Auto skip commercials -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableSkipCommercials">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableAutoHideSkip" type="boolean" label="39723" help=""> <!-- Auto hide skip button -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableAutoHideSkipTime" type="integer" label="39724" help="" parent="enableAutoHideSkip"> <!-- Seconds until skip button is hidden -->
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>60</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="enableAutoHideSkip">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="firstVideoStream" type="boolean" label="30546" help=""> <!-- Pick the first video if several versions are present -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="audioStreamPick" type="integer" label="30547" help=""> <!-- Who picks the audio stream on playback start? -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="Plex">0</option>
+                            <option label="Kodi">1</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="subtitleStreamPick" type="integer" label="30548" help=""> <!-- Who picks subtitles on playback start? -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="Plex">0</option>
+                            <option label="Kodi">1</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="ignoreSpecialsNextEpisodes" type="boolean" label="30527" help=""> <!-- Ignore specials in next episodes -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="resumeJumpBack" type="integer" label="30521" help=""> <!-- Jump back on resume (in seconds) -->
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>120</maximum>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="2">
+                <setting id="playType" type="integer" label="30002" help=""> <!-- Preferred playback method -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="Try Direct Path">0</option>
+                            <option label="Direct Play">1</option>
+                            <option label="Direct Stream">2</option>
+                            <option label="Force Transcode">3</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="transcoderVideoQualities" type="integer" label="30160" help=""> <!-- Video Quality if Transcoding necessary -->
+                    <level>0</level>
+                    <default>10</default>
+                    <constraints>
+                        <options>
+                            <option label="480p, 1.5Mbps">0</option>
+                            <option label="720p, 2Mbps">1</option>
+                            <option label="720p, 3Mbps">2</option>
+                            <option label="720p, 4Mbps">3</option>
+                            <option label="1080p, 8Mbps">4</option>
+                            <option label="1080p, 10Mbps">5</option>
+                            <option label="1080p, 12Mbps">6</option>
+                            <option label="1080p, 20Mbps">7</option>
+                            <option label="1080p, 40Mbps">8</option>
+                            <option label="4K, 35Mbps">9</option>
+                            <option label="4K, 50Mbps">10</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="auto_adjust_transcode_quality" type="boolean" label="30161" help=""> <!-- Auto-adjust transcoding quality (deactivate for Chromecast) -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="maxVideoQualities" type="integer" label="30143" help=""> <!-- Always transcode if video bitrate is above -->
+                    <level>0</level>
+                    <default>11</default>
+                    <constraints>
+                        <options>
+                            <option label="320kbps">0</option>
+                            <option label="720kbps">1</option>
+                            <option label="1.5Mbps">2</option>
+                            <option label="2Mbps">3</option>
+                            <option label="3Mbps">4</option>
+                            <option label="4Mbps">5</option>
+                            <option label="8Mbps">6</option>
+                            <option label="10Mbps">7</option>
+                            <option label="12Mbps">8</option>
+                            <option label="20Mbps">9</option>
+                            <option label="40Mbps">10</option>
+                            <option label="deactivated">11</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="transcodeH265" type="integer" label="30522" help=""> <!-- Force transcode h265/HEVC -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="Disabled (default)">0</option>
+                            <option label="480p (and higher)">1</option>
+                            <option label="720p (and higher)">2</option>
+                            <option label="1080p (and higher)">3</option>
+                            <option label="4K">4</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="transcodeAV1" type="integer" label="39725" help=""> <!-- Force transcode AV1 -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="Disabled (default)">0</option>
+                            <option label="480p (and higher)">1</option>
+                            <option label="720p (and higher)">2</option>
+                            <option label="1080p (and higher)">3</option>
+                            <option label="4K">4</option>
+                        </options>
+                    </constraints>
+                    <control type="spinner" format="string" />
+                </setting>
+                <setting id="transcodeHi10P" type="boolean" label="39063" help=""> <!-- Force Transcode Hi10P -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="transcodeIntoH265Profile" type="boolean" label="39726" help=""> <!-- Enable transcoding using h265/HEVC codec (restart Kodi!) -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="audioBoost" type="integer" label="39001" help=""> <!-- Boost audio when transcoding -->
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>10</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="subtitleSize" type="integer" label="39002" help=""> <!-- Burnt-in subtitle size -->
+                    <level>0</level>
+                    <default>100</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>30</step>
+                        <maximum>300</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="force_transcode_pix" type="boolean" label="30545" help=""> <!-- Force transcode pictures -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="bestQuality" type="boolean" label="30541" help=""> <!-- Transcoding: Auto-pick audio and subtitle stream using Plex defaults -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="bestTrailer" type="boolean" label="30542" help=""> <!-- Always pick best quality for trailers -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+            </group>
+            <group id="3">
+                <setting id="offerDelete" type="boolean" label="30114" help=""> <!-- Offer delete after playback -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="deleteTV" type="boolean" label="30115" help="" parent="offerDelete"> <!-- For Episodes -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="offerDelete">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="deleteMovies" type="boolean" label="30116" help="" parent="offerDelete"> <!-- For Movies -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="offerDelete">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="skipContextMenu" type="boolean" label="30520" help=""> <!-- Skip PMS delete confirmation (use at your own risk) -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="kodi_video_cache" type="integer" help="">
+                    <level>0</level>
+                    <default>20971520</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="integer">
+                        <heading />
+                    </control>
+                </setting>
+                <setting id="warned_setting_videoplayer.autoplaynextitem" type="boolean" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="failedCount" type="integer" help="">
+                    <level>0</level>
+                    <default>0</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="integer">
+                        <heading />
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="artwork" label="30544" help=""> <!-- Artwork -->
+            <group id="1">
+                <setting id="usePlexArtwork" type="boolean" label="30502" help=""> <!-- Sync Plex artwork from the PMS (recommended) -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="enableTextureCache" type="boolean" label="30512" help=""> <!-- Cache all artwork for a smooth Kodi experience -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="FanartTV" type="boolean" label="30539" help=""> <!-- Download additional art from FanArtTV -->
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="PreferKodiCollectionArt" type="boolean" label="30543" help="" parent="FanartTV"> <!-- Prefer Kodi artwork for collections/sets -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="FanartTV">true</condition>
+                                <condition operator="is" setting="usePlexArtwork">true</condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="kjsprzuilnbgnvzhhzzoeutlnvutoges" type="action" label="39222" help="" parent="FanartTV"> <!-- Look for missing fanart on FanartTV now -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=fanart)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <and>
+                                <condition operator="is" setting="FanartTV">true</condition>
+                                <condition operator="is" setting="usePlexArtwork">true</condition>
+                            </and>
+                        </dependency>
+                    </dependencies>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="imageSyncNotifications" type="boolean" label="30008" help=""> <!-- Enable notifications for image caching -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="imageSyncDuringPlayback" type="boolean" label="30009" help=""> <!-- Enable image caching during Kodi playback (restart Kodi!) -->
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle" />
+                </setting>
+                <setting id="dzfkjpmunychetkfurdyxijfxzoozvqo" type="action" label="39020" help=""> <!-- Cache all images to Kodi texture cache now -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=texturecache)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="126">
+                <setting id="plex_status_fanarttv_lookup" type="string" label="30019" help=""> <!-- FanartTV lookup completed -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30019</heading> <!-- FanartTV lookup completed -->
+                    </control>
+                </setting>
+                <setting id="plex_status_image_caching" type="string" label="30028" help=""> <!-- PKC-only image caching completed -->
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="enable">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                        <dependency type="visible">
+                            <condition operator="is" setting="usePlexArtwork">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>30028</heading> <!-- PKC-only image caching completed -->
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="appearance tweaks" label="39073" help=""> <!-- Appearance Tweaks -->
+            <group id="1">
+                <setting id="plex_context_show_extras" type="boolean" label="39058" help=""> <!-- Show 'Extras' in Kodi context menu (reboot Kodi) -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="iszcfbzyuastaqpvfimuawwdnfjqaowq" type="action" label="39085" help=""> <!-- Reload Kodi node files to apply all the settings below -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=refreshplaylist)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="widgetLimit" type="integer" label="39077" help=""> <!-- Maximum number of videos to show in widgets -->
+                    <level>0</level>
+                    <default>30</default>
+                    <constraints>
+                        <minimum>10</minimum>
+                        <step>10</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="">
+                <setting id="fetch_pms_item_number" type="integer" label="39077" help=""> <!-- Maximum number of videos to show in widgets -->
+                    <level>0</level>
+                    <default>50</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="integer">
+                        <heading>39077</heading> <!-- Maximum number of videos to show in widgets -->
+                    </control>
+                </setting>
+            </group>
+            <group id="3" label="39074"> <!-- TV Shows -->
+                <setting id="OnDeckTvAppendShow" type="boolean" label="39047" help=""> <!-- On Deck: Append show title to episode -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="OnDeckTvAppendSeason" type="boolean" label="39048" help=""> <!-- On Deck: Append season- and episode-number SxxExx -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="TVShowWatched" type="boolean" label="39064" help=""> <!-- Recently Added: Also show already watched episodes -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="RecentTvAppendShow" type="boolean" label="39059" help=""> <!-- Recently Added: Append show title to episode -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+                <setting id="RecentTvAppendSeason" type="boolean" label="39060" help=""> <!-- Recently Added: Append season- and episode-number SxxExx -->
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle" />
+                </setting>
+            </group>
+            <group id="4" />
+            <group id="5" label="30302"> <!-- Movies -->
+                <setting id="MovieShowWatched" type="boolean" label="39066" help=""> <!-- Recently Added: Also show already watched movies -->
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle" />
+                </setting>
+            </group>
+            <group id="6" />
+            <group id="7" label="30022" /> <!-- Advanced -->
+        </category>
+        <category id="advanced" label="30022" help=""> <!-- Advanced -->
+            <group id="1">
+                <setting id="startupDelay" type="integer" label="30529" help=""> <!-- Startup delay (in seconds) -->
+                    <level>0</level>
+                    <default>0</default>
+                    <control type="edit" format="integer">
+                        <heading>30529</heading> <!-- Startup delay (in seconds) -->
+                    </control>
+                </setting>
+                <setting id="elhsrylanhzahoxakgxbqdgrdnoxoiov" type="action" label="39018" help=""> <!-- Repair the Kodi database (force update all content) -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=repair)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="askvrtueldgnvzpegbynzfumzssiwkgw" type="action" label="30535" help=""> <!-- Generate a new unique Plex device Id (e.g. to clone Kodi) -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=deviceid)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action" />
+                </setting>
+            </group>
+            <group id="2" />
+            <group id="3" label="39049"> <!-- Nothing works? Try a full reset! -->
+                <setting id="xiispxcvgwwhwfbhyflgkhswekhlrsac" type="action" label="39019" help=""> <!-- Reset the Kodi database and optionally reset PlexKodiConnect -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect/?mode=reset)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+    </section>
 </settings>

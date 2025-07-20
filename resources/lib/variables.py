@@ -468,7 +468,9 @@ STREAMING_HEADERS = {
          'context=streaming&'
          'protocol=hls&'
          'container=mpegts&'
-         'videoCodec=h264&'
+         'videoCodec=h264'
+         + (',hevc' if _ADDON.getSetting('transcodeIntoH265Profile') == 'true' else '') +
+         '&'
          'audioCodec=aac,flac,vorbis,opus,ac3,eac3,mp3,mp2,pcm&'
          'replace=true)'
          # '+add-transcode-target('

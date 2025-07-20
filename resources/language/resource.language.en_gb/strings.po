@@ -15,6 +15,10 @@ msgstr ""
 
 # Add-on settings
 
+msgctxt "#29998"
+msgid "Plex"
+msgstr ""
+
 msgctxt "#29999"
 msgid "PlexKodiConnect"
 msgstr ""
@@ -1559,4 +1563,9 @@ msgstr ""
 # PKC Settings - Playback
 msgctxt "#39725"
 msgid "Force transcode AV1"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39726"
+msgid "Enable transcoding using h265/HEVC codec (restart Kodi!)"
 msgstr ""
