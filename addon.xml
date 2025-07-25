@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.plexkodiconnect" name="PlexKodiConnect" version="3.10.9" provider-name="croneter">
+<addon  id="plugin.video.plexkodiconnect" name="PlexKodiConnect" version="3.11.0" provider-name="croneter">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0" />
@@ -113,7 +113,10 @@
     <summary lang="ko_KR">Plex를 Kodi에 기본 통합</summary>
     <description lang="ko_KR">Kodi를 Plex Media Server에 연결합니다. 이 플러그인은 Plex로 모든 비디오를 관리하고 Kodi로는 관리하지 않는다고 가정합니다. Kodi 비디오 및 음악 데이터베이스에 이미 저장된 데이터가 손실 될 수 있습니다 (이 플러그인이 직접 변경하므로). 자신의 책임하에 사용하십시오!</description>
     <disclaimer lang="ko_KR">자신의 책임하에 사용</disclaimer>
-    <news>version 3.10.9 (beta only):
+    <news>version 3.11.0:
+- version 3.10.9 for everyone!
+
+version 3.10.9 (beta only):
 - Finally move from old Kodi add-on XML settings format to new one (this will BREAK compatibility of PKC with Kodi 18 Leia and earlier!) #2169
 
 version 3.10.8 (beta only):

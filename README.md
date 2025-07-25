@@ -37,7 +37,8 @@ Some people argue that PKC is 'hacky' because of the way it directly accesses th
 
 ### PKC Features
 
-- Support for Kodi 21 Omega, Kodi 20 Nexus, Kodi 19 Matrix, Kodi 18 Leia
+- Support for Kodi 21 Omega, Kodi 20 Nexus, Kodi 19 Matrix
+- Kodi 18 Leia is supported up until PKC version 3.10.7
 - Preliminary support for Kodi 22 Piers. Keep in mind that Piers is still in early alpha version - any issues you encounter are probably caused by that. Please do not use nightly versions as they tend to break stuff. To install PKC on Kodi Piers, simply use the PKC repo for Kodi Omega
 - [Skip commercials/advertisements](https://support.plex.tv/articles/115003944134-removing-commercials/), [skip intros](https://support.plex.tv/articles/skip-content/) and [skip credits](https://support.plex.tv/articles/credits-detection/)
 - [Amazon Alexa voice recognition](https://www.plex.tv/apps/streaming-devices/amazon-alexa)
@@ -78,7 +79,7 @@ PKC uses additional artwork for free from [TheMovieDB](https://www.themoviedb.or
 I'm not in any way affiliated with Plex. Thank you very much for a small donation via ko-fi.com and PayPal, Bitcoin or Ether if you appreciate PKC.  
 **Full disclaimer:** I will see your name and address if you use PayPal. Rest assured that I will not share this with anyone. 
 
-[![Donations](https://az743702.vo.msecnd.net/cdn/kofi1.png?v=a)](https://ko-fi.com/A8182EB)
+<a href='https://ko-fi.com/A8182EB' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
     
 **Ethereum address for donations:    
 0x0f57D98E08e617292D8bC0B3448dd79BF4Cf8e7F**

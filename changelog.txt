@@ -1,3 +1,6 @@
+version 3.11.0:
+- version 3.10.9 for everyone!
+
 version 3.10.9 (beta only):
 - Finally move from old Kodi add-on XML settings format to new one (this will BREAK compatibility of PKC with Kodi 18 Leia and earlier!) #2169
 
