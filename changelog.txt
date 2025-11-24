@@ -1,3 +1,10 @@
+version 3.11.2 (beta only):
+- Fix Plex Watchlist not working #2191
+- Plex Companion: register as Plex Companion if PKC receives a poll #2192
+
+version 3.11.1:
+- Settings: fix settings options not making sense at all #2188
+
 version 3.11.0:
 - version 3.10.9 for everyone!
 

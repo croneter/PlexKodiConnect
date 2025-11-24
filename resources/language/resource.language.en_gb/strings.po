@@ -15,6 +15,10 @@ msgstr ""
 
 # Add-on settings
 
+msgctxt "#29997"
+msgid "Kodi"
+msgstr ""
+
 msgctxt "#29998"
 msgid "Plex"
 msgstr ""
@@ -703,6 +707,167 @@ msgstr ""
 msgctxt "#30548"
 msgid "Who picks subtitles on playback start?"
 msgstr ""
+
+
+
+# PKC Settings - entries within toggles
+msgctxt "#31000"
+msgid "plex.tv"
+msgstr ""
+
+msgctxt "#31001"
+msgid "Plex Token"
+msgstr ""
+
+msgctxt "#31002"
+msgid "Addon (Default)"
+msgstr ""
+
+msgctxt "#31003"
+msgid "Direct Paths"
+msgstr ""
+
+msgctxt "#31004"
+msgid "PKC needs to completely clean the Kodi DB at least once, then reboot, to avoid Kodi error messages, e.g. OperationalError"
+msgstr ""
+
+
+
+msgctxt "#31005"
+msgid "Try Direct Path (default)"
+msgstr ""
+
+msgctxt "#31006"
+msgid "Direct Play"
+msgstr ""
+
+msgctxt "#31007"
+msgid "Direct Stream"
+msgstr ""
+
+msgctxt "#31008"
+msgid "Force Transcode"
+msgstr ""
+
+
+
+msgctxt "#31009"
+msgid "480p, 1.5Mbps"
+msgstr ""
+
+msgctxt "#31010"
+msgid "720p, 2Mbps"
+msgstr ""
+
+msgctxt "#31011"
+msgid "720p, 3Mbps"
+msgstr ""
+
+msgctxt "#31012"
+msgid "720p, 4Mbps"
+msgstr ""
+
+msgctxt "#31013"
+msgid "1080p, 8Mbps"
+msgstr ""
+
+msgctxt "#31014"
+msgid "1080p, 10Mbps (default)"
+msgstr ""
+
+msgctxt "#31015"
+msgid "1080p, 12Mbps"
+msgstr ""
+
+msgctxt "#31016"
+msgid "1080p, 20Mbps"
+msgstr ""
+
+msgctxt "#31017"
+msgid "1080p, 40Mbps"
+msgstr ""
+
+msgctxt "#31018"
+msgid "4K, 35Mbps"
+msgstr ""
+
+msgctxt "#31019"
+msgid "4K, 50Mbps"
+msgstr ""
+
+
+
+msgctxt "#31020"
+msgid "320kbps"
+msgstr ""
+
+msgctxt "#31021"
+msgid "720kbps"
+msgstr ""
+
+msgctxt "#31022"
+msgid "1.5Mbps"
+msgstr ""
+
+msgctxt "#31023"
+msgid "2Mbps"
+msgstr ""
+
+msgctxt "#31024"
+msgid "3Mbps"
+msgstr ""
+
+msgctxt "#31025"
+msgid "4Mbps"
+msgstr ""
+
+msgctxt "#31026"
+msgid "8Mbps"
+msgstr ""
+
+msgctxt "#31027"
+msgid "10Mbps"
+msgstr ""
+
+msgctxt "#31028"
+msgid "12Mbps"
+msgstr ""
+
+msgctxt "#31029"
+msgid "20Mbps"
+msgstr ""
+
+msgctxt "#31030"
+msgid "40Mbps"
+msgstr ""
+
+msgctxt "#31031"
+msgid "deactivated (default)"
+msgstr ""
+
+
+
+msgctxt "#31040"
+msgid "Disabled (default)"
+msgstr ""
+
+msgctxt "#31041"
+msgid "480p (and higher)"
+msgstr ""
+
+msgctxt "#31042"
+msgid "720p (and higher)"
+msgstr ""
+
+msgctxt "#31043"
+msgid "1080p (and higher)"
+msgstr ""
+
+msgctxt "#31044"
+msgid "4K"
+msgstr ""
+
+
 
 # Welcome to Plex notification
 msgctxt "#33000"

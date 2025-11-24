@@ -152,7 +152,7 @@
             </group>
         </category>
         <category id="plex" label="29998" help=""> <!-- Plex -->
-            <group id="1" label="plex.tv">
+            <group id="1" label="31000">
                 <setting id="plex_status" type="string" label="39071" help=""> <!-- Current plex.tv status: -->
                     <level>0</level>
                     <default>Not logged in to plex.tv</default>
@@ -220,7 +220,7 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="plexToken" type="string" label="plexToken" help="">
+                <setting id="plexToken" type="string" label="31001" help="">
                     <level>0</level>
                     <default />
                     <constraints>
@@ -674,8 +674,8 @@
                     <default>0</default>
                     <constraints>
                         <options>
-                            <option label="Addon (Default)">0</option>
-                            <option label="Direct Paths">1</option>
+                            <option label="31002">0</option><!-- Addon (Default) -->
+                            <option label="31003">1</option><!-- Direct Paths -->
                         </options>
                     </constraints>
                     <dependencies>
@@ -739,7 +739,7 @@
                     </dependencies>
                     <control type="toggle" />
                 </setting>
-                <setting id="kodi_db_has_been_wiped_clean" type="boolean" label="PKC needs to completely clean the Kodi DB at least once, then reboot, to avoid Kodi error messages, e.g. OperationalError" help="">
+                <setting id="kodi_db_has_been_wiped_clean" type="boolean" label="31004" help=""><!-- PKC needs to completely clean the Kodi DB at least once, then reboot, to avoid Kodi error messages, e.g. OperationalError -->
                     <level>0</level>
                     <default>false</default>
                     <dependencies>
@@ -1001,8 +1001,8 @@
                     <default>0</default>
                     <constraints>
                         <options>
-                            <option label="Plex">0</option>
-                            <option label="Kodi">1</option>
+                            <option label="29998">0</option><!-- Plex -->
+                            <option label="29997">1</option><!-- Kodi -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
@@ -1012,8 +1012,8 @@
                     <default>0</default>
                     <constraints>
                         <options>
-                            <option label="Plex">0</option>
-                            <option label="Kodi">1</option>
+                            <option label="29998">0</option><!-- Plex -->
+                            <option label="29997">1</option><!-- Kodi -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
@@ -1047,30 +1047,30 @@
                     <default>0</default>
                     <constraints>
                         <options>
-                            <option label="Try Direct Path">0</option>
-                            <option label="Direct Play">1</option>
-                            <option label="Direct Stream">2</option>
-                            <option label="Force Transcode">3</option>
+                            <option label="31005">0</option><!-- Try Direct Path (default) -->
+                            <option label="31006">1</option><!-- Direct Play -->
+                            <option label="31007">2</option><!-- Direct Stream -->
+                            <option label="31008">3</option><!-- Force Transcode -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
                 </setting>
                 <setting id="transcoderVideoQualities" type="integer" label="30160" help=""> <!-- Video Quality if Transcoding necessary -->
                     <level>0</level>
-                    <default>10</default>
+                    <default>5</default>
                     <constraints>
                         <options>
-                            <option label="480p, 1.5Mbps">0</option>
-                            <option label="720p, 2Mbps">1</option>
-                            <option label="720p, 3Mbps">2</option>
-                            <option label="720p, 4Mbps">3</option>
-                            <option label="1080p, 8Mbps">4</option>
-                            <option label="1080p, 10Mbps">5</option>
-                            <option label="1080p, 12Mbps">6</option>
-                            <option label="1080p, 20Mbps">7</option>
-                            <option label="1080p, 40Mbps">8</option>
-                            <option label="4K, 35Mbps">9</option>
-                            <option label="4K, 50Mbps">10</option>
+                            <option label="31009">0</option><!-- 480p, 1.5Mbps -->
+                            <option label="31010">1</option><!-- 720p, 2Mbps -->
+                            <option label="31011">2</option><!-- 720p, 3Mbps -->
+                            <option label="31012">3</option><!-- 720p, 4Mbps -->
+                            <option label="31013">4</option><!-- 1080p, 8Mbps -->
+                            <option label="31014">5</option><!-- 1080p, 10Mbps (default) -->
+                            <option label="31015">6</option><!-- 1080p, 12Mbps -->
+                            <option label="31016">7</option><!-- 1080p, 20Mbps -->
+                            <option label="31017">8</option><!-- 1080p, 40Mbps -->
+                            <option label="31018">9</option><!-- 4K, 35Mbps -->
+                            <option label="31019">10</option><!-- 4K, 50Mbps -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
@@ -1085,18 +1085,18 @@
                     <default>11</default>
                     <constraints>
                         <options>
-                            <option label="320kbps">0</option>
-                            <option label="720kbps">1</option>
-                            <option label="1.5Mbps">2</option>
-                            <option label="2Mbps">3</option>
-                            <option label="3Mbps">4</option>
-                            <option label="4Mbps">5</option>
-                            <option label="8Mbps">6</option>
-                            <option label="10Mbps">7</option>
-                            <option label="12Mbps">8</option>
-                            <option label="20Mbps">9</option>
-                            <option label="40Mbps">10</option>
-                            <option label="deactivated">11</option>
+                            <option label="31020">0</option><!-- 320kbps -->
+                            <option label="31021">1</option>><!-- 720kbps -->
+                            <option label="31022">2</option><!-- 1.5Mbps -->
+                            <option label="31023">3</option><!-- 2Mbps -->
+                            <option label="31024">4</option><!-- 3Mbps -->
+                            <option label="31025">5</option><!-- 4Mbps -->
+                            <option label="31026">6</option><!-- 8Mbps -->
+                            <option label="31027">7</option><!-- 10Mbps -->
+                            <option label="31028">8</option><!-- 12Mbps -->
+                            <option label="31029">9</option><!-- 20Mbps -->
+                            <option label="31030">10</option><!-- 40Mbps -->
+                            <option label="31031">11</option><!-- deactivated (default) -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
@@ -1106,11 +1106,11 @@
                     <default>0</default>
                     <constraints>
                         <options>
-                            <option label="Disabled (default)">0</option>
-                            <option label="480p (and higher)">1</option>
-                            <option label="720p (and higher)">2</option>
-                            <option label="1080p (and higher)">3</option>
-                            <option label="4K">4</option>
+                            <option label="31040">0</option><!-- Disabled (default) -->
+                            <option label="31041">1</option><!-- 480p (and higher) -->
+                            <option label="31042">2</option><!-- 720p (and higher) -->
+                            <option label="31043">3</option><!-- 1080p (and higher) -->
+                            <option label="31044">4</option><!-- 4K -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
@@ -1120,11 +1120,11 @@
                     <default>0</default>
                     <constraints>
                         <options>
-                            <option label="Disabled (default)">0</option>
-                            <option label="480p (and higher)">1</option>
-                            <option label="720p (and higher)">2</option>
-                            <option label="1080p (and higher)">3</option>
-                            <option label="4K">4</option>
+                            <option label="31040">0</option><!-- Disabled (default) -->
+                            <option label="31041">1</option><!-- 480p (and higher) -->
+                            <option label="31042">2</option><!-- 720p (and higher) -->
+                            <option label="31043">3</option><!-- 1080p (and higher) -->
+                            <option label="31044">4</option><!-- 4K -->
                         </options>
                     </constraints>
                     <control type="spinner" format="string" />
