@@ -492,7 +492,7 @@ def watchlist(section_id=None):
         LOG.error('No watchlist - restricted user')
         raise ListingException
     app.init(entrypoint=True)
-    xml = DU().downloadUrl('https://metadata.provider.plex.tv/library/sections/watchlist/all',
+    xml = DU().downloadUrl('https://discover.provider.plex.tv/library/sections/watchlist/all',
                            authenticate=False,
                            headerOptions={'X-Plex-Token': utils.window('plex_token')})
     try:

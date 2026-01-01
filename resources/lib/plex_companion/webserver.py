@@ -102,6 +102,15 @@ def CompanionHandlerClassFactory(playstate_mgr):
             Let's NOT register this Companion client - it will poll us
             continuously
             """
+            if not playstate_mgr.update_command_id(self.uuid, self.command_id):
+                log.warn("Poll: Client not registered – auto-registering")
+                if not self.check_subscription(params):
+                    self.nok_message(
+                        f'Failed to auto-register polling client with {params}',
+                        code=400,
+                    )
+                    return
+
             if params.get('wait') == '1':
                 # Plex Web asks us to wait until we start playback
                 i = 20

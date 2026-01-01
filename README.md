@@ -38,8 +38,8 @@ Some people argue that PKC is 'hacky' because of the way it directly accesses th
 ### PKC Features
 
 - Support for Kodi 21 Omega, Kodi 20 Nexus, Kodi 19 Matrix
-- Kodi 18 Leia is supported up until PKC version 3.10.7
 - Preliminary support for Kodi 22 Piers. Keep in mind that Piers is still in early alpha version - any issues you encounter are probably caused by that. Please do not use nightly versions as they tend to break stuff. To install PKC on Kodi Piers, simply use the PKC repo for Kodi Omega
+- Kodi 18 Leia is supported up until PKC version 3.10.7
 - [Skip commercials/advertisements](https://support.plex.tv/articles/115003944134-removing-commercials/), [skip intros](https://support.plex.tv/articles/skip-content/) and [skip credits](https://support.plex.tv/articles/credits-detection/)
 - [Amazon Alexa voice recognition](https://www.plex.tv/apps/streaming-devices/amazon-alexa)
 - [Cinema Trailers & Extras](https://support.plex.tv/articles/202934883-cinema-trailers-extras/)
