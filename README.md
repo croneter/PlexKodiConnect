@@ -52,6 +52,7 @@ Some people argue that PKC is 'hacky' because of the way it directly accesses th
 - Automatically group movies into [movie sets](http://kodi.wiki/view/movie_sets)
 - [Direct play](https://github.com/croneter/PlexKodiConnect/wiki/Direct-Play) from network paths (e.g. "\\\\server\\Plex\\movie.mkv"), something unique to PKC
 - Delete PMS items from the Kodi context menu
+- Integration with the [Kodi add-on Up Next](https://kodi.wiki/view/Add-on:Up_Next)
 - PKC is available in the following languages. [Please help and easily translate PKC!](https://www.transifex.com/croneter/pkc)
     + English
     + German

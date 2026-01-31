@@ -18,6 +18,7 @@ from . import utils, timing, plex_functions as PF
 from . import json_rpc as js, playlist_func as PL
 from . import backgroundthread, app, variables as v
 from . import exceptions
+from . import upnext
 
 LOG = getLogger('PLEX.kodimonitor')
 
@@ -331,15 +332,27 @@ class KodiMonitor(xbmc.Monitor):
                 container_key = '/playQueues/%s' % playqueue.id
             else:
                 container_key = '/library/metadata/%s' % plex_id
+        if plex_type == v.PLEX_TYPE_EPISODE and \
+                xbmc.getCondVisibility('System.AddonIsEnabled(service.upnext)'):
+            # Let's use Up Next if the add-on is activated REGARDLESS of
+            # skipping credits is enabled or not
+            upnext_integration = True
+        else:
+            upnext_integration = False
         # Mechanik for Plex skip intro/credits/commercials feature
         if utils.settings('enableSkipIntro') == 'true' \
                 or utils.settings('enableSkipCredits') == 'true' \
                 or utils.settings('enableSkipCommercials') == 'true':
             status['markers'] = item.api.markers()
             status['markers_hidden'] = {}
-            if utils.settings('enableSkipCredits') == 'true':
-                status['first_credits_marker'] = item.api.first_credits_marker()
-                status['final_credits_marker'] = item.api.final_credits_marker()
+            status['first_credits_marker'] = item.api.first_credits_marker()
+            status['final_credits_marker'] = item.api.final_credits_marker()
+        # Set credits markers if skip credits OR Up Next is enabled
+        # Up Next uses these markers for notification timing
+        elif upnext_integration:
+            status['first_credits_marker'] = item.api.first_credits_marker()
+            status['final_credits_marker'] = item.api.final_credits_marker()
+
         if item.playmethod is None and path and not path.startswith('plugin://'):
             item.playmethod = v.PLAYBACK_METHOD_DIRECT_PATH
         item.playerid = playerid
@@ -363,6 +376,10 @@ class KodiMonitor(xbmc.Monitor):
         if playerid == v.KODI_VIDEO_PLAYER_ID:
             task = InitVideoStreams(item)
             backgroundthread.BGThreader.addTask(task)
+            # Send Up Next signal for episodes if enabled
+            if upnext_integration:
+                task = SendUpNextSignal(item, status)
+                backgroundthread.BGThreader.addTask(task)
 
     def _on_av_change(self, data):
         """
@@ -682,3 +699,34 @@ class InitVideoStreams(backgroundthread.Task):
                     return
             else:
                 break
+
+
+class SendUpNextSignal(backgroundthread.Task):
+    """
+    Sends the Up Next signal after playback has started.
+    We wait a bit to ensure playback is fully initialized.
+    """
+
+    def __init__(self, item, status):
+        self.item = item
+        self.status = status
+        super().__init__()
+
+    def run(self):
+        # Wait for playback to stabilize before sending Up Next signal
+        if app.APP.monitor.waitForAbort(2):
+            return
+        try:
+            # Get notification time from Plex credits markers if available
+            notification_time = upnext.get_notification_time_from_markers(self.status)
+            signal_sent = upnext.send_upnext_signal(self.item.api, notification_time)
+            # Store whether Up Next found a next episode
+            # If False, PKC skip credits popup will still show for last episodes
+            with app.APP.lock_playqueues:
+                playerid = self.item.playerid
+                app.PLAYSTATE.player_states[playerid]['upnext_signal_sent'] = signal_sent
+            if not signal_sent:
+                LOG.debug('Up Next: No next episode - PKC skip credits will handle last episode')
+        except Exception as err:
+            LOG.error('Exception encountered while sending Up Next signal:')
+            LOG.error(err)

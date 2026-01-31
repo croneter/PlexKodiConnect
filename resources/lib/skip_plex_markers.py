@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import xbmc
+
 from .windows.skip_marker import SkipMarkerDialog
 from . import app, utils, variables as v
 
@@ -12,6 +14,24 @@ MARKERS = {
     'commercial': (utils.lang(30530), 'enableSkipCommercials', 'enableAutoSkipCommercials'),  # Skip commercial
 }
 
+
+def _should_skip_credits_popup():
+    """
+    Returns True if we should suppress the PKC credits popup.
+    This happens when Up Next is enabled AND found a next episode.
+    If there's no next episode (last episode), we still show PKC credits popup.
+    """
+    if not xbmc.getCondVisibility('System.AddonIsEnabled(service.upnext)'):
+        return False
+
+    # Check if Up Next actually sent a signal (found next episode)
+    with app.APP.lock_playqueues:
+        if len(app.PLAYSTATE.active_players) != 1:
+            return False
+        playerid = list(app.PLAYSTATE.active_players)[0]
+        player_state = app.PLAYSTATE.player_states.get(playerid, {})
+        return player_state.get('upnext_signal_sent', False)
+
 def skip_markers(markers, markers_hidden):
     try:
         progress = app.APP.player.getTime()
@@ -22,6 +42,9 @@ def skip_markers(markers, markers_hidden):
     marker_definition = None
     for start, end, typus, _ in markers:
         marker_definition = MARKERS[typus]
+        # Skip the PKC credits popup if Up Next is enabled (Up Next handles it)
+        if typus == 'credits' and _should_skip_credits_popup():
+            continue
         # The "-1" is important since timestamps/seeks are not exact and we
         # could end up in an endless loop within start & end
         # see https://github.com/croneter/PlexKodiConnect/issues/2002
