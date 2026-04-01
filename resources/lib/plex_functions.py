@@ -995,6 +995,22 @@ def delete_item_from_pms(plexid):
     return False
 
 
+def analyze_item_on_pms(plexid):
+    """
+    Triggers media analysis on the Plex Media Server for the given item.
+
+    Returns True if the request was accepted, False otherwise
+    """
+    url = '{server}/library/metadata/%s/analyze' % plexid
+    # Request async analysis to return immediately
+    answer = DU().downloadUrl(url, parameters={'async': 1})
+    if answer is None:
+        LOG.error('Could not trigger analysis for Plex id %s on the PMS', plexid)
+        return False
+    LOG.info('Triggered analysis for Plex id %s on the PMS', plexid)
+    return True
+
+
 def pms_root(url, token):
     """
     Retrieve the PMS' most basic settings by retrieving <url>/

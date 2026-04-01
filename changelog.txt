@@ -1,5 +1,27 @@
-version 3.12.0:
-- versions 3.11.5 and 3.11.6 for everyone
+version 3.12.6:
+- version 3.11.4-3.12.5 for everyone
+
+version 3.12.5 (beta only):
+- Hopefully almost there to fix 'database is locked' on OSMC #2229
+
+version 3.12.4 (beta only):
+- Fix "database is locked" for good, hopefully! #2227
+
+version 3.12.3 (beta only):
+- Fix PMS stop registering playback state after 6-10 music tracks #2224 (thanks @quinnoshea)
+- Database may still be locked: add logging #2225
+
+version 3.12.2 (beta only):
+- add context menu option to analyze media in pms
+#2219 (thanks @doomwithdon)
+- Hopefully fix sqlite3.OperationalError: database is locked
+#2222
+- Fix potentially locked database when trying to connect to SQlite
+#2221
+
+version 3.12.1 (beta only):
+- Implement fallback to PMS on playback and seek errors (thanks @doomwithdon) #2211
+- Deactivate warning dialog that user should use default skin Estuary #2212
 
 version 3.11.6 (beta only):
 - Fix Up Next: Show PKC credits for last episode #2207 (thanks @Serph91P)

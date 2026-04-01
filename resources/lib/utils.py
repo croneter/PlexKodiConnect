@@ -540,8 +540,6 @@ def reset(ask_user=True):
     # Are you sure you want to reset your local Kodi database?
     if ask_user and not yesno_dialog(lang(29999), lang(39600)):
         return
-    if not default_kodi_skin_warning_message():
-        return
     from . import app
     # first stop any db sync
     app.APP.suspend_threads()

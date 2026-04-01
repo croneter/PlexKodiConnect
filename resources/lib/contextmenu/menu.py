@@ -26,6 +26,7 @@ OPTIONS = {
     # 'RateSong': utils.lang(30407),
     'Transcode': utils.lang(30412),
     'PMS_Play': utils.lang(30415),  # Use PMS to start playback
+    'Analyze': utils.lang(30418),
     'Extras': utils.lang(30235)
 }
 
@@ -78,6 +79,7 @@ class ContextMenu(object):
             options.append(OPTIONS['PMS_Play'])
         if self.kodi_type in v.KODI_VIDEOTYPES:
             options.append(OPTIONS['Transcode'])
+            options.append(OPTIONS['Analyze'])
 
         # Delete item, only if the Plex Home main user is logged in
         if (utils.window('plex_restricteduser') != 'true' and
@@ -106,6 +108,11 @@ class ContextMenu(object):
             self._PMS_play()
         elif selected == OPTIONS['PMS_Play']:
             self._PMS_play()
+        elif selected == OPTIONS['Analyze']:
+            if PF.analyze_item_on_pms(self.plex_id) is False:
+                utils.dialog("notification", heading="{plex}", message=utils.lang(30017), icon='{error}')
+            else:
+                utils.dialog("notification", heading="{plex}", message=utils.lang(30418))
         elif selected == OPTIONS['Extras']:
             self._extras()
 

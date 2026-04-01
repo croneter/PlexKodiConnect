@@ -467,6 +467,8 @@ def _conclude_playback(playqueue, pos):
     listitem.setPath(item.file)
     if item.playmethod != v.PLAYBACK_METHOD_DIRECT_PATH:
         listitem.setSubtitles(item.api.cache_external_subs())
+    # Persist the current PlaylistItem so we can fall back to PMS on failure
+    app.PLAYSTATE.item = item
     transfer.send(listitem)
     LOG.debug('Done concluding playback')
 
@@ -592,6 +594,16 @@ def threaded_playback(kodi_playlist, startpos, offset):
         i += 1
         if i > TRY_TO_SEEK_FOR:
             LOG.error('Could not seek to %s', offset)
+            # Fall back to PMS if direct-path playback failed
+            itm = getattr(app.PLAYSTATE, 'item', None)
+            if itm and getattr(itm, 'playmethod', None) == v.PLAYBACK_METHOD_DIRECT_PATH:
+                LOG.info('Direct-path playback failed; falling back to PMS.')
+                try:
+                    app.PLAYSTATE.context_menu_play = True
+                    pms_path = itm.api.fullpath(force_addon=True)[0]
+                    xbmc.executebuiltin('RunPlugin(%s)' % pms_path)
+                except Exception as exc:
+                    LOG.error('Fallback via PMS failed: %s', exc)
             return
     try:
         if offset == 0 and app.APP.player.getTime() < IGNORE_SECONDS_AT_START:
@@ -611,6 +623,16 @@ def threaded_playback(kodi_playlist, startpos, offset):
         i += 1
         if i > TRY_TO_SEEK_FOR:
             LOG.error('Failed to seek to %s. Error: %s', offset, answ)
+            # If seeking fails, fall back to PMS
+            itm = getattr(app.PLAYSTATE, 'item', None)
+            if itm and getattr(itm, 'playmethod', None) == v.PLAYBACK_METHOD_DIRECT_PATH:
+                LOG.info('Seeking failed; falling back to PMS.')
+                try:
+                    app.PLAYSTATE.context_menu_play = True
+                    pms_path = itm.api.fullpath(force_addon=True)[0]
+                    xbmc.executebuiltin('RunPlugin(%s)' % pms_path)
+                except Exception as exc:
+                    LOG.error('Fallback via PMS failed: %s', exc)
             return
         answ = js.seek_to(offset)
     LOG.debug('Seek to offset %s successful', offset)

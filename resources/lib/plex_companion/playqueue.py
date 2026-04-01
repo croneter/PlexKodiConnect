@@ -95,7 +95,7 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
                     log.error('Could not modify playqueue positions')
                     log.error('This is likely caused by mixing audio and '
                               'video tracks in the Kodi playqueue')
-                del old[j], index[i]
+                del old[j], index[j]
                 break
         else:
             log.debug('Detected new Kodi element at position %s: %s ',

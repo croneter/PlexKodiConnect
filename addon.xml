@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.plexkodiconnect" name="PlexKodiConnect" version="3.12.0" provider-name="croneter">
+<addon  id="plugin.video.plexkodiconnect" name="PlexKodiConnect" version="3.12.6" provider-name="croneter">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0" />
@@ -113,7 +113,32 @@
     <summary lang="ko_KR">Plex를 Kodi에 기본 통합</summary>
     <description lang="ko_KR">Kodi를 Plex Media Server에 연결합니다. 이 플러그인은 Plex로 모든 비디오를 관리하고 Kodi로는 관리하지 않는다고 가정합니다. Kodi 비디오 및 음악 데이터베이스에 이미 저장된 데이터가 손실 될 수 있습니다 (이 플러그인이 직접 변경하므로). 자신의 책임하에 사용하십시오!</description>
     <disclaimer lang="ko_KR">자신의 책임하에 사용</disclaimer>
-    <news>version 3.12.0:
+    <news>version 3.12.6:
+- version 3.11.4-3.12.5 for everyone
+
+version 3.12.5 (beta only):
+- Hopefully almost there to fix 'database is locked' on OSMC #2229
+
+version 3.12.4 (beta only):
+- Fix "database is locked" for good, hopefully! #2227
+
+version 3.12.3 (beta only):
+- Fix PMS stop registering playback state after 6-10 music tracks #2224 (thanks @quinnoshea)
+- Database may still be locked: add logging #2225
+
+version 3.12.2 (beta only):
+- add context menu option to analyze media in pms
+#2219 (thanks @doomwithdon)
+- Hopefully fix sqlite3.OperationalError: database is locked
+#2222
+- Fix potentially locked database when trying to connect to SQlite
+#2221
+
+version 3.12.1 (beta only):
+- Implement fallback to PMS on playback and seek errors (thanks @doomwithdon) #2211
+- Deactivate warning dialog that user should use default skin Estuary #2212
+
+version 3.12.0:
 - versions 3.11.5 and 3.11.6 for everyone
 
 version 3.11.6 (beta only):

@@ -480,6 +480,11 @@ msgctxt "#30417"
 msgid "Could not change the Kodi settings file {0}. PKC might not work correctly. Error: {1}"
 msgstr ""
 
+# contextmenu entry
+msgctxt "#30418"
+msgid "Analyze media in Plex"
+msgstr ""
+
 # PKC Settings - Connection
 msgctxt "#30500"
 msgid "Verify Host SSL Certificate (more secure)"
