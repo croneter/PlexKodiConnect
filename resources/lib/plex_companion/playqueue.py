@@ -87,14 +87,18 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
                 del old[0], index[0]
                 break
             elif identical:
-                log.debug('Playqueue item %s moved to position %s',
-                          index[j], i)
+                src = index[j]
+                log.debug('Playqueue item %s moved to position %s', src, i)
                 try:
-                    PL.move_playlist_item(playqueue, index[j], i)
+                    PL.move_playlist_item(playqueue, src, i)
                 except exceptions.PlaylistError:
                     log.error('Could not modify playqueue positions')
                     log.error('This is likely caused by mixing audio and '
                               'video tracks in the Kodi playqueue')
+                    return
+                for k, pos in enumerate(index):
+                    if i <= pos < src:
+                        index[k] = pos + 1
                 del old[j], index[j]
                 break
         else:
@@ -126,8 +130,9 @@ def compare_playqueues(playqueue, new_kodi_playqueue):
                 # Also see kodimonitor.py - _playlist_onadd()
                 pass
             else:
-                for j in range(i, len(index)):
-                    index[j] += 1
+                for k, pos in enumerate(index):
+                    if pos >= i:
+                        index[k] = pos + 1
     for i in reversed(index):
         if app.APP.stop_pkc:
             # Chances are that we got an empty Kodi playlist due to
